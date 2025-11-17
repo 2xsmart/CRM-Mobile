@@ -8,15 +8,14 @@ import { Dropdown, MultiSelect } from 'react-native-element-dropdown';
 import { format } from "date-fns";
 import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import styles from '../../Styles/JobFormStyle';
 import api from '../../../Plugins/axios';
 import { iconsize } from '../../../Constants/dimensions';
-import jobsstyles from '../../Styles/JobsStyle';
+import JobStyles from '../../Styles/Jobs';
+import JobFormStyle from '../../Styles/JobForm';
 import Loader from '../../Loader';
 
 const JobForm = ({ route, navigation }) => {
   const JobId = route.params.id;
-  const PageName = route.params.name;
   const Action = route.params.action;
 
 
@@ -34,6 +33,7 @@ const JobForm = ({ route, navigation }) => {
   const [show, setShow] = useState(false);
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(true);
+  // const [errors, setErrors] = useState({});
 
   AsyncStorage.getItem('Language').then((name) => {
     setLanguage(name);
@@ -161,35 +161,34 @@ const JobForm = ({ route, navigation }) => {
         text = data[0];
       }
     }
-    return String(text);
+    return String(text || '');
   };
   const renderField = (field) => {
     switch (field.code) {
       case 'UID':
         return (<>
-          <View style={styles.labelbox}>
-            <Text>{String(field.name)}</Text>
+          <View style={JobFormStyle.labelbox}>
+            <Text>{String(field.name)}<Text style={field.required ? JobFormStyle.cr : JobFormStyle.cw}>*</Text></Text>
           </View>
           <TextInput
             mode="outlined"
-            style={styles.input}
-            value={String(Job.UID) || ''}
+            style={JobFormStyle.input}
+            value={String(Job.UID || '')}
             editable={false}
           />
         </>
-
         );
       case 'Job Id':
         return (
           <>
-            <View style={styles.labelbox}>
-              <Text>{String(field.name)}</Text>
+            <View style={JobFormStyle.labelbox}>
+              <Text>{String(field.name)}<Text style={field.required ? JobFormStyle.cr : JobFormStyle.cw}>*</Text></Text>
             </View>
             <TextInput
               mode="outlined"
               outlineStyle={{ borderColor: '#71717B', borderWidth: 1 }}
-              style={styles.input}
-              value={String(Job.JobId) || ''}
+              style={JobFormStyle.input}
+              value={String(Job.JobId || '')}
               onChangeText={(text) => handleJob("JobId", text)}
             />
           </>
@@ -198,23 +197,23 @@ const JobForm = ({ route, navigation }) => {
       case 'Status':
         return (
           <>
-            <View style={styles.labelbox}>
-              <Text>{String(field.name)}</Text>
+            <View style={JobFormStyle.labelbox}>
+              <Text>{String(field.name)}<Text style={field.required ? JobFormStyle.cr : JobFormStyle.cw}>*</Text></Text>
             </View>
             <Dropdown
-              style={styles.dropdown}
-              containerStyle={styles.dropdownContainer}
-              placeholderStyle={styles.placeholderStyle}
-              selectedTextStyle={styles.selectedTextStyle}
-              itemTextStyle={styles.itemTextStyle}
-              inputSearchStyle={styles.inputSearchStyle}
+              style={JobFormStyle.dropdown}
+              containerStyle={JobFormStyle.dropdownContainer}
+              placeholderStyle={JobFormStyle.placeholderStyle}
+              selectedTextStyle={JobFormStyle.selectedTextStyle}
+              itemTextStyle={JobFormStyle.itemTextStyle}
+              inputSearchStyle={JobFormStyle.inputSearchStyle}
               data={Status}
               search
               labelField="name"
               valueField="name"
               placeholder="Select Status"
               searchPlaceholder="Search..."
-              value={String(Job.Status) || ''}
+              value={String(Job.Status || '')}
               onChange={item => {
                 handleJob('Status', item.name);
               }}
@@ -225,16 +224,16 @@ const JobForm = ({ route, navigation }) => {
       case 'Sub-Status':
         return (
           <>
-            <View style={styles.labelbox}>
-              <Text>{String(field.name)}</Text>
+            <View style={JobFormStyle.labelbox}>
+              <Text>{String(field.name)}<Text style={field.required ? JobFormStyle.cr : JobFormStyle.cw}>*</Text></Text>
             </View>
             <Dropdown
-              style={styles.dropdown}
-              containerStyle={styles.dropdownContainer}
-              placeholderStyle={styles.placeholderStyle}
-              selectedTextStyle={styles.selectedTextStyle}
-              itemTextStyle={styles.itemTextStyle}
-              inputSearchStyle={styles.inputSearchStyle}
+              style={JobFormStyle.dropdown}
+              containerStyle={JobFormStyle.dropdownContainer}
+              placeholderStyle={JobFormStyle.placeholderStyle}
+              selectedTextStyle={JobFormStyle.selectedTextStyle}
+              itemTextStyle={JobFormStyle.itemTextStyle}
+              inputSearchStyle={JobFormStyle.inputSearchStyle}
               data={SubStatus}
               search
               maxHeight={300} // show ~7 items, then scroll
@@ -242,7 +241,7 @@ const JobForm = ({ route, navigation }) => {
               valueField="name"
               placeholder="Select Sub Status"
               searchPlaceholder="Search..."
-              value={String(Job.SubStatus) || ''}
+              value={String(Job.SubStatus || '')}
               onChange={item => {
                 handleJob('SubStatus', item.name);
               }}
@@ -253,16 +252,16 @@ const JobForm = ({ route, navigation }) => {
       case 'Owner':
         return (
           <>
-            <View style={styles.labelbox}>
-              <Text>{String(field.name)}</Text>
+            <View style={JobFormStyle.labelbox}>
+              <Text>{String(field.name)}<Text style={field.required ? JobFormStyle.cr : JobFormStyle.cw}>*</Text></Text>
             </View>
             <Dropdown
-              style={styles.dropdown}
-              containerStyle={styles.dropdownContainer}
-              placeholderStyle={styles.placeholderStyle}
-              selectedTextStyle={styles.selectedTextStyle}
-              itemTextStyle={styles.itemTextStyle}
-              inputSearchStyle={styles.inputSearchStyle}
+              style={JobFormStyle.dropdown}
+              containerStyle={JobFormStyle.dropdownContainer}
+              placeholderStyle={JobFormStyle.placeholderStyle}
+              selectedTextStyle={JobFormStyle.selectedTextStyle}
+              itemTextStyle={JobFormStyle.itemTextStyle}
+              inputSearchStyle={JobFormStyle.inputSearchStyle}
               data={Owner}
               search
               maxHeight={300} // show ~7 items, then scroll
@@ -270,7 +269,7 @@ const JobForm = ({ route, navigation }) => {
               valueField="name"
               placeholder="Select Owner"
               searchPlaceholder="Search..."
-              value={String(Job.Owner) || ''}
+              value={String(Job.Owner || '')}
               onChange={item => {
                 handleJob('Owner', item.name);
               }}
@@ -281,16 +280,16 @@ const JobForm = ({ route, navigation }) => {
       case 'Client':
         return (
           <>
-            <View style={styles.labelbox}>
-              <Text>{String(field.name)}</Text>
+            <View style={JobFormStyle.labelbox}>
+              <Text>{String(field.name)}<Text style={field.required ? JobFormStyle.cr : JobFormStyle.cw}>*</Text></Text>
             </View>
             <Dropdown
-              style={styles.dropdown}
-              containerStyle={styles.dropdownContainer}
-              placeholderStyle={styles.placeholderStyle}
-              selectedTextStyle={styles.selectedTextStyle}
-              itemTextStyle={styles.itemTextStyle}
-              inputSearchStyle={styles.inputSearchStyle}
+              style={JobFormStyle.dropdown}
+              containerStyle={JobFormStyle.dropdownContainer}
+              placeholderStyle={JobFormStyle.placeholderStyle}
+              selectedTextStyle={JobFormStyle.selectedTextStyle}
+              itemTextStyle={JobFormStyle.itemTextStyle}
+              inputSearchStyle={JobFormStyle.inputSearchStyle}
               data={Client}
               search
               maxHeight={300}
@@ -298,7 +297,7 @@ const JobForm = ({ route, navigation }) => {
               valueField="name"
               placeholder="Select Client"
               searchPlaceholder="Search..."
-              value={String(Job.Client) || ''}
+              value={String(Job.Client || '')}
               onChange={item => handleJob('Client', item.name)}
               renderItem={(item) => selectedoption(item.name, Job.Client)}
             />
@@ -308,18 +307,18 @@ const JobForm = ({ route, navigation }) => {
       case 'AssignTo':
         return (
           <>
-            <View style={styles.labelbox}>
-              <Text>{String(field.name)}</Text>
+            <View style={JobFormStyle.labelbox}>
+              <Text>{String(field.name)}<Text style={field.required ? JobFormStyle.cr : JobFormStyle.cw}>*</Text></Text>
             </View>
             <MultiSelect
-              style={styles.dropdown}
-              containerStyle={styles.dropdownContainer}
+              style={JobFormStyle.dropdown}
+              containerStyle={JobFormStyle.dropdownContainer}
               placeholder={<Text>{displayText(Job.AssignTo)}</Text>}
               placeholderStyle={{ color: Job?.AssignTo && Job.AssignTo.length > 0 ? '#000' : '#999', fontSize: 14 }}
               selectedStyle={{ display: 'none' }}
               selectedTextStyle={{ color: 'transparent', }} // hide selected items
-              itemTextStyle={styles.itemTextStyle}
-              inputSearchStyle={styles.inputSearchStyle}
+              itemTextStyle={JobFormStyle.itemTextStyle}
+              inputSearchStyle={JobFormStyle.inputSearchStyle}
               searchPlaceholder="Search..."
               data={Users}
               search
@@ -338,15 +337,33 @@ const JobForm = ({ route, navigation }) => {
         if (field.type === 'text' || field.type === 'textArea') {
           return (
             <>
-              <View style={styles.labelbox}>
-                <Text>{String(field.name)}</Text>
+              <View style={JobFormStyle.labelbox}>
+                <Text>{String(field.name)}<Text style={field.required ? JobFormStyle.cr : JobFormStyle.cw}>*</Text></Text>
               </View>
               <TextInput
                 mode="outlined"
-                style={styles.input}
-                outlineStyle={styles.TextInputoutline}
+                style={JobFormStyle.input}
+                outlineStyle={JobFormStyle.TextInputoutline}
                 placeholder={`Enter ${field.name}`}
-                value={String(form[field.id]) || ''}
+                value={String(form[field.id] || '')}
+                placeholderTextColor={'#999'}
+                onChangeText={(text) => handleJobData(field.id, text)}
+              />
+            </>
+          );
+        }
+        else if (field.type === 'textArea') {
+          return (
+            <>
+              <View style={JobFormStyle.labelbox}>
+                <Text>{String(field.name)}<Text style={field.required ? JobFormStyle.cr : JobFormStyle.cw}>*</Text></Text>
+              </View>
+              <TextInput
+                mode="outlined"
+                style={JobFormStyle.input}
+                outlineStyle={JobFormStyle.TextInputoutline}
+                placeholder={`Enter ${field.name}`}
+                value={String(form[field.id] || '')}
                 placeholderTextColor={'#999'}
                 onChangeText={(text) => handleJobData(field.id, text)}
               />
@@ -356,16 +373,16 @@ const JobForm = ({ route, navigation }) => {
         else if (field.type === 'number') {
           return (
             <>
-              <View style={styles.labelbox}>
-                <Text>{String(field.name)}</Text>
+              <View style={JobFormStyle.labelbox}>
+                <Text>{String(field.name)}<Text style={field.required ? JobFormStyle.cr : JobFormStyle.cw}>*</Text></Text>
               </View>
               <TextInput
                 mode="outlined"
-                style={styles.input}
-                outlineStyle={styles.TextInputoutline}
+                style={JobFormStyle.input}
+                outlineStyle={JobFormStyle.TextInputoutline}
                 keyboardType="number-pad"
                 placeholder={`Enter ${field.name}`}
-                value={String(form[field.id]) || ''}
+                value={String(form[field.id] || '') || ''}
                 placeholderTextColor={'#999'}
                 onChangeText={(text) => handleJobData(field.id, text)}
               />
@@ -374,16 +391,16 @@ const JobForm = ({ route, navigation }) => {
         }
         else if (field.type === 'singleSelect') {
           return (<>
-            <View style={styles.labelbox}>
-              <Text>{String(field.name)}</Text>
+            <View style={JobFormStyle.labelbox}>
+              <Text>{String(field.name)}<Text style={field.required ? JobFormStyle.cr : JobFormStyle.cw}>*</Text></Text>
             </View>
             <Dropdown
-              style={styles.dropdown}
-              containerStyle={styles.dropdownContainer}
-              placeholderStyle={styles.placeholderStyle}
-              selectedTextStyle={styles.selectedTextStyle}
-              itemTextStyle={styles.itemTextStyle}
-              inputSearchStyle={styles.inputSearchStyle}
+              style={JobFormStyle.dropdown}
+              containerStyle={JobFormStyle.dropdownContainer}
+              placeholderStyle={JobFormStyle.placeholderStyle}
+              selectedTextStyle={JobFormStyle.selectedTextStyle}
+              itemTextStyle={JobFormStyle.itemTextStyle}
+              inputSearchStyle={JobFormStyle.inputSearchStyle}
               data={field.options}
               search
               maxHeight={300}
@@ -391,7 +408,7 @@ const JobForm = ({ route, navigation }) => {
               valueField="value"
               placeholder={`Select ${field.name}`}
               searchPlaceholder="Search..."
-              value={String(form[field.id]) || ''}
+              value={String(form[field.id] || '') || ''}
               onChange={item => {
                 handleJobData(field.id, item.value)
               }}
@@ -403,18 +420,18 @@ const JobForm = ({ route, navigation }) => {
         else if (field.type === 'multiSelect') {
           return (
             <>
-              <View style={styles.labelbox}>
-                <Text>{String(field.name)}</Text>
+              <View style={JobFormStyle.labelbox}>
+                <Text>{String(field.name)}<Text style={field.required ? JobFormStyle.cr : JobFormStyle.cw}>*</Text></Text>
               </View>
               <MultiSelect
-                style={styles.dropdown}
-                containerStyle={styles.dropdownContainer}
+                style={JobFormStyle.dropdown}
+                containerStyle={JobFormStyle.dropdownContainer}
                 placeholder={<Text>{displayText(form[field.id], field.name)}</Text>}
                 placeholderStyle={{ color: form[field.id]?.length > 0 ? '#000' : '#999' }}
                 selectedStyle={{ display: 'none' }}
                 selectedTextStyle={{ color: 'transparent', }} // hide selected items
-                itemTextStyle={styles.itemTextStyle}
-                inputSearchStyle={styles.inputSearchStyle}
+                itemTextStyle={JobFormStyle.itemTextStyle}
+                inputSearchStyle={JobFormStyle.inputSearchStyle}
                 searchPlaceholder="Search..."
                 data={field.options}
                 search
@@ -430,16 +447,16 @@ const JobForm = ({ route, navigation }) => {
         }
         else if (field.type === 'radio') {
           return (<>
-            <View style={styles.labelbox}>
-              <Text>{String(field.name)}</Text>
+            <View style={JobFormStyle.labelbox}>
+              <Text>{String(field.name)}<Text style={field.required ? JobFormStyle.cr : JobFormStyle.cw}>*</Text></Text>
             </View>
-            <View style={styles.row}>
+            <View style={JobFormStyle.row}>
               {
                 field.options.length > 0 && field.options.map((item, index) => (
-                  <View key={item.value} style={styles.option}>
+                  <View key={item.value} style={JobFormStyle.option}>
                     <View style={{ transform: [{ scale: 0.8 }] }}>
                       <RadioButton
-                        value={String(item.value) || ''}
+                        value={String(item.value || '') || ''}
                         status={form[field.id] === item.value ? "checked" : "unchecked"}
                         onPress={() => handleJobData(field.id, item.value)}
                       />
@@ -455,16 +472,16 @@ const JobForm = ({ route, navigation }) => {
         else if (field.type === 'date') {
           return (
             <>
-              <View style={styles.labelbox}>
-                <Text>{String(field.name)}</Text>
+              <View style={JobFormStyle.labelbox}>
+                <Text>{String(field.name)}<Text style={field.required ? JobFormStyle.cr : JobFormStyle.cw}>*</Text></Text>
               </View>
-              <TouchableOpacity style={styles.calendar} >
+              <TouchableOpacity style={JobFormStyle.calendar} >
                 <FontAwesome5 name="calendar-alt" size={iconsize.sm} color="#FFF" style={{ backgroundColor: '#0343CE', width: '12%', paddingLeft: 10, paddingVertical: 6 }} onPress={() => setShow(field.id)} />
                 <Text style={{ width: '100%', paddingVertical: 10 }}>{form[field.id]}</Text>
               </TouchableOpacity>
               {show === field.id && (
                 <DateTimePicker
-                  value={parseDate(form[field.id]) || ''}
+                  value={parseDate(form[field.id] || '') || ''}
                   mode="date"
                   display="default"
                   onChange={(event, selectedDate) => handleDateChange(field.id, event, selectedDate)}
@@ -475,12 +492,12 @@ const JobForm = ({ route, navigation }) => {
         }
         else if (field.type === 'file') {
           return (<>
-            <View style={styles.labelbox}>
-              <Text>{String(field.name)}</Text>
+            <View style={JobFormStyle.labelbox}>
+              <Text>{String(field.name)}<Text style={field.required ? JobFormStyle.cr : JobFormStyle.cw}>*</Text></Text>
             </View>
             <TextInput
               mode="outlined"
-              style={styles.input}
+              style={JobFormStyle.input}
               placeholder={`Enter ${field.name}`}
               value={String(form[field.id] || '')}
               placeholderTextColor={'#999'}
@@ -545,6 +562,8 @@ const JobForm = ({ route, navigation }) => {
   };
   useFocusEffect(
     useCallback(() => {
+      // const state = navigation.getState();
+      // console.log('🧭 Current Navigation State:', state);
       getStatus()
       getSubStatus()
       getClient()
@@ -557,39 +576,37 @@ const JobForm = ({ route, navigation }) => {
     getJobDeatils();
   }, [Owner]);
   if (loading) {
-    return <View style={jobsstyles.loadingbox}>
+    return <View style={JobStyles.loadingbox}>
       <Loader />
     </View>
   }
   return (
-    <View style={styles.container}>
-      <View style={styles.head}>
-        <Text style={styles.headtext}>{Job.UID}</Text>
-        <Text style={[styles.headtext]}>
+    <View style={JobFormStyle.container}>
+      <View style={JobFormStyle.head}>
+        <Text style={JobFormStyle.headtext}>{Job.UID}</Text>
+        <Text style={[JobFormStyle.headtext]}>
           {Tabs[selectedTab]?.name?.toString().replace(/\b\w/g, (char) => char.toUpperCase()) || ''}
         </Text>
         <Icon name="tab" size={iconsize.md} color="#FFF" onPress={() => setVisible(true)} />
       </View>
-      <View style={styles.fieldsbox1}>
-        <ScrollView contentContainerStyle={{ gap: 15, justifyContent: 'center', alignItems: 'center', paddingVertical: 10 }}>
+      <View style={Action ? JobFormStyle.fieldsbox : JobFormStyle.fieldsbox1}>
+        <ScrollView contentContainerStyle={JobFormStyle.fieldsbox2}>
           {
             fields.length > 0 && fields.map((field, index) => {
-              return <View style={styles.fieldbox} key={index}>
+              return <View style={JobFormStyle.fieldbox} key={index}>
                 {renderField(field)}
               </View>
             })
           }
         </ScrollView>
       </View>
-      <View style={styles.actionbox}>
-        <TouchableOpacity style={[styles.btn, styles.gray]} onPress={() => navigation.navigate(PageName)}><Text style={styles.cw}>Close</Text></TouchableOpacity>
-        {
-          Action && <>
-            <TouchableOpacity style={[styles.btn, styles.green]}><Text style={styles.cw}>Save</Text></TouchableOpacity>
-            <TouchableOpacity style={[styles.btn, styles.green]}><Text style={styles.cw}>Submit</Text></TouchableOpacity>
-          </>
-        }
-      </View>
+      {
+        Action && <View style={JobFormStyle.actionbox}>
+          <TouchableOpacity style={[JobFormStyle.btn, JobFormStyle.green]}><Text style={JobFormStyle.cw}>Save</Text></TouchableOpacity>
+          <TouchableOpacity style={[JobFormStyle.btn, JobFormStyle.green]}><Text style={JobFormStyle.cw}>Submit</Text></TouchableOpacity>
+        </View>
+      }
+
       <Modal
         visible={visible}
         transparent
@@ -597,16 +614,16 @@ const JobForm = ({ route, navigation }) => {
         onRequestClose={() => setVisible(false)}
         onDismiss={() => setVisible(false)}>
         <TouchableWithoutFeedback onPress={() => setVisible(false)}>
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
+          <View style={JobFormStyle.modalOverlay}>
+            <View style={JobFormStyle.modalContent}>
               {
                 Tabs.length > 0 ? Tabs.map((tab, index) =>
-                  <TouchableOpacity style={[styles.TabCell, selectedTab === index ? styles.blb : styles.bb]} key={index} onPress={() => { handleTabs(index, Tabs) }}>
+                  <TouchableOpacity style={[JobFormStyle.TabCell, selectedTab === index ? JobFormStyle.blb : JobFormStyle.bb]} key={index} onPress={() => { handleTabs(index, Tabs) }}>
                     {
-                      tab.name && <Text style={styles.TabText}>{tab.name.replace(/\b\w/g, (char) => char.toUpperCase())}</Text>
+                      tab.name && <Text style={JobFormStyle.TabText}>{tab.name.replace(/\b\w/g, (char) => char.toUpperCase())}</Text>
                     }
                   </TouchableOpacity>
-                ) : <View style={styles.Nodata}> <Text style={{ color: 'red' }}>No Tabs Found</Text> </View>
+                ) : <View style={JobFormStyle.Nodata}> <Text style={{ color: 'red' }}>No Tabs Found</Text> </View>
               }
             </View>
           </View>

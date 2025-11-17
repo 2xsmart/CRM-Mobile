@@ -7,12 +7,13 @@ const getRandomColor = () => {
   }
   return color;
 };
-const styles = StyleSheet.create({
+const DashStyles = StyleSheet.create({
   container: {
     flex: 1,
     width: '100%',
     alignItems: 'center',
-    backgroundColor: '#069589',
+    backgroundColor: '#204D74',
+    // backgroundColor: '#069589',
     justifyContent: 'flex-end'
   },
   headbox: {
@@ -53,8 +54,8 @@ const styles = StyleSheet.create({
     gap: 10
   },
   profileiconbox: {
-    width: '25%',
-    height: '53%',
+    width: 65,
+    height: 63,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: '50%',
@@ -108,9 +109,10 @@ const styles = StyleSheet.create({
     // color: '#fff'
   },
   chartbox: {
-    height: '50%',
+    height: '40%',
     width: '95%',
-    // backgroundColor: '#0396FF',
+    backgroundColor: '#FFF',
+    borderRadius: '5%',
   },
   textbox: {
     height: '10%',
@@ -201,4 +203,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default styles;
+export default DashStyles;

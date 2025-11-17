@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, ImageBackground, Image, TouchableHighlight, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, ImageBackground, Image, TouchableHighlight, TouchableOpacity, BackHandler } from 'react-native';
 import { TextInput } from 'react-native-paper';
 import React, { useEffect, useState, useCallback } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -9,11 +9,50 @@ import Toast from 'react-native-toast-message';
 import { useFocusEffect } from '@react-navigation/native';
 import { iconsize } from '../Constants/dimensions';
 import api from '../Plugins/axios';
+import ReactNativeBiometrics from 'react-native-biometrics';
 
 const Login = ({ navigation }) => {
   const [showPassword, setshowPassword] = useState(true)
-  const [Data, setData] = useState({})
+  const [Data, setData] = useState({});
+  const [Mobileauthentication, setMobileauthentication] = useState(true);
 
+  const rnBiometrics = new ReactNativeBiometrics();
+
+  const CheckBiometrics = async () => {
+    rnBiometrics.isSensorAvailable()
+      .then(({ available, biometryType }) => {
+        if (available && biometryType === ReactNativeBiometrics.FaceID) {
+          console.log('Face ID supported');
+          authenticate()
+        } else if (available) {
+          console.log('Biometric supported (fingerprint or iris)');
+          authenticate()
+        } else {
+          console.log('No biometric hardware available');
+        }
+      });
+  };
+  const authenticate = async () => {
+    try {
+      const { success } = await rnBiometrics.simplePrompt({
+        promptMessage: 'Authenticate to continue',
+        fallbackPromptMessage: 'Use device password',
+        allowDeviceCredentials: true,
+      });
+      if (!success) {
+        console.log('Prompt closed — retrying...');
+        navigation.navigate('Authenticate');
+      } else {
+        console.log('✅ Authenticated successfully!');
+        AsyncStorage.setItem('Mobileauthentication', 'true')
+        // setMobileauthentication(true)
+      }
+    } catch (error) {
+      console.log('Biometric prompt error:', error);
+      BackHandler.exitApp();
+      // You can retry or exit app here
+    }
+  };
   const handleInput = (key, value) => {
     setData(prev => ({
       ...prev, [key]: value
@@ -36,6 +75,7 @@ const Login = ({ navigation }) => {
         AsyncStorage.setItem('userId', String(loginData.id))
         AsyncStorage.setItem('Application', loginData.Application)
         setData({})
+        menuItems()
         if (loginData.userLevel === 'client') {
           Toast.show({
             type: 'success',
@@ -43,7 +83,10 @@ const Login = ({ navigation }) => {
             text2: 'Welcome to the Client Dashboard',
             visibilityTime: 1000,
           });
-          navigation.navigate('ClientDashboard');
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'ClientDrawer' }]
+          });
         } else {
           Toast.show({
             type: 'success',
@@ -51,7 +94,10 @@ const Login = ({ navigation }) => {
             text2: 'Welcome to the Dashboard',
             visibilityTime: 1000,
           });
-          navigation.navigate('Dashboard');
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'MainDrawer' }],
+          });
         }
       }
       else {
@@ -70,7 +116,11 @@ const Login = ({ navigation }) => {
       });
     }
   };
-
+  const menuItems = async () => {
+    const response = await api.get('/logo/standard/0')
+    const data = response.data.filter(obj => obj.Value === 1).map(obj => obj.Name)
+    AsyncStorage.setItem('Menus', JSON.stringify(data))
+  }
   const clearStorage = async () => {
     try {
       await AsyncStorage.clear();
@@ -90,6 +140,7 @@ const Login = ({ navigation }) => {
       return []
     }
   };
+
   // Runs every time the screen comes into focus
   useFocusEffect(
     useCallback(() => {
@@ -97,17 +148,25 @@ const Login = ({ navigation }) => {
         const localStorage = await fetchData();
         if (localStorage.authToken) {
           if (localStorage.userlevel === 'client') {
-            navigation.navigate('ClientDashboard');
+            // navigation.navigate('ClientDashboard');
           } else {
-            navigation.navigate('Dashboard');
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'MainDrawer' }],
+            });
           }
         } else {
           clearStorage();
         }
+        if (localStorage.Mobileauthentication === 'true') {
+          console.log('Verified');
+        } else {
+          CheckBiometrics();
+        }
       };
       getData();
     }, [])
-  )
+  );
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>

@@ -1,22 +1,42 @@
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, ActivityIndicator, ScrollView, Pressable } from 'react-native'
+import { Text, View, ScrollView, Pressable, Modal, TouchableWithoutFeedback, TouchableOpacity, TextInput as Textinput } from 'react-native'
+import { TextInput } from 'react-native-paper';
+import { Dropdown } from 'react-native-element-dropdown';
 import React, { useCallback, useEffect, useState } from 'react';
 import FontAwesome from 'react-native-vector-icons/FontAwesome'
-import FontAwesome5 from 'react-native-vector-icons/FontAwesome5'
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useFocusEffect } from '@react-navigation/native';
 import api from '../../Plugins/axios';
 import { iconsize } from '../../Constants/dimensions';
-import jobsstyles from '../Styles/JobsStyle';
 import Loader from '../Loader';
+import JobFormStyle from '../Styles/JobForm';
+import JobStyles from '../Styles/Jobs';
+import Toast from 'react-native-toast-message';
 
 const Supports = () => {
   const [search, setSearch] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [ShowForm, setShowForm] = useState(false);
   const [Reports, setReports] = useState([]);
+  const [Report, setReport] = useState({});
   const [Users, setUsers] = useState([]);
-  const [filteredJobs, setFilteredJobs] = useState(Reports);
+  const [filteredJobs, setFilteredJobs] = useState([]);
+
+  const Type = [
+    { value: 'Issue', name: 'Issue' },
+    { value: 'Change Request', name: 'Change Request' },
+    { value: 'Service Request', name: 'Service Request' }
+  ]
+  const severity = [
+    { value: 'Severity1 (Critical Impact like System Down. Complete system outage)', name: 'Severity1 (Critical Impact like System Down. Complete system outage)' },
+    { value: 'Severity2 (Significant Impact/Severe downgrade of services)', name: 'Severity2 (Significant Impact/Severe downgrade of services)' },
+    { value: 'Severity3 (Minor impact/Most of the system is functioning properly)', name: 'Severity3 (Minor impact/Most of the system is functioning properly)' },
+    { value: 'Severity4 (Low Impact/Informational)', name: 'Severity4 (Low Impact/Informational)' },
+  ];
+  const Status = [
+    { value: 'Open', name: 'Open' },
+    { value: 'Closed', name: 'Closed' },
+  ]
   const headers = [
     {
       text: 'Title',
@@ -73,6 +93,38 @@ const Supports = () => {
         console.log('err', err);
       });
   };
+  const selectedoption = (name1, name2) => {
+    const isSelected = name1 === name2;
+    return (
+      <View style={{ padding: 8, backgroundColor: isSelected ? '#8AC0FF' : 'white' }} >
+        <Text style={{ color: isSelected ? 'white' : 'black' }}>{String(name1)}</Text>
+      </View>
+    );
+  };
+  const handleReport = (id) => {
+    const findReport = Reports.find(obj => obj.id === id)
+    setReport(findReport);
+    setShowForm(true);
+    console.log(findReport);
+  };
+  const handleChange = (key, value) => {
+    setReport(prev => ({ ...prev, [key]: value }))
+  };
+  const submit = async () => {
+    await api.put(`/support/${Report.id}`, Report).then((res) => {
+      getReports()
+      Toast.show({
+        type: 'success',
+        text1: 'Support',
+        text2: res.data,
+        visibilityTime: 1000,
+      });
+    }).catch((err) => {
+      console.log('err', err);
+    });
+    // console.log(Report);
+    setShowForm(false)
+  }
   useFocusEffect(
     useCallback(() => {
       getUsers();
@@ -92,30 +144,22 @@ const Supports = () => {
         )
       );
     }
-    setLoading(false)
   }, [search, Reports]);
   useEffect(() => {
     if (filteredJobs.length) {
       setLoading(false);
     }
   }, [filteredJobs]);
-  if (loading) return <View style={jobsstyles.loadingbox}>
+  if (loading) return <View style={JobStyles.loadingbox}>
     <Loader />
-
   </View>
   return (
-    <View style={jobsstyles.container}>
-      {/* <View style={jobsstyles.head}>
-        <View style={jobsstyles.box1}>
-          <MaterialIcons name={'support-agent'} size={iconsize.sm} color='#2B7FFF' />
-          <Text style={jobsstyles.headtext}>Supports</Text>
-        </View>
-      </View> */}
-      <View style={jobsstyles.searchBox}>
-        <View style={jobsstyles.search}>
-          <Icon name="search" size={20} color="#888" style={jobsstyles.icon} />
-          <TextInput
-            style={jobsstyles.input}
+    <View style={JobStyles.container}>
+      <View style={JobStyles.searchBox}>
+        <View style={JobStyles.search}>
+          <Icon name="search" size={20} color="#888" style={JobStyles.icon} />
+          <Textinput
+            style={JobStyles.input}
             placeholder="Search..."
             value={search}
             onChangeText={(text) => setSearch(text)}
@@ -123,30 +167,31 @@ const Supports = () => {
           />
         </View>
       </View>
-      <View style={jobsstyles.Table}>
-        <ScrollView contentContainerStyle={jobsstyles.scrollbox}>
+      <View style={JobStyles.Table}>
+        <ScrollView contentContainerStyle={JobStyles.scrollbox}>
           {
-            filteredJobs.length === 0 ? <View style={jobsstyles.Nodata}>
+            filteredJobs.length === 0 ? <View style={JobStyles.Nodata}>
               <Text style={{ color: 'red' }}>No Data Found</Text>
             </View> :
               filteredJobs.map((obj, i) => {
                 return (
-                  <View key={i} style={jobsstyles.Tablebox}>
-                    <View style={jobsstyles.TableHead}>
-                      <Text style={jobsstyles.cw}>{obj.UID}</Text>
+                  <View key={i} style={JobStyles.Tablebox}>
+                    <View style={JobStyles.TableHead}>
+                      <Text style={JobStyles.cw}>{obj.UID}</Text>
                       <Pressable
-                        style={jobsstyles.openjobicon}
+                        style={JobStyles.openjobicon}
+                        onPress={() => handleReport(obj.id)}
                       // onPress={() => navigation.navigate('JobForm', { id: obj.id, name: 'AllJobs', action: false})}
                       >
                         <FontAwesome name='angle-right' color='#fff' size={iconsize.sm} />
                       </Pressable>
                     </View>
-                    <View style={jobsstyles.TableValues}>
+                    <View style={JobStyles.TableValues}>
                       {
                         headers.map((header, index) => (
-                          <View style={jobsstyles.valuebox} key={index}>
-                            <View style={jobsstyles.keybox}><Text style={jobsstyles.label}>{header.text}</Text></View>
-                            <View style={jobsstyles.keyvalue}><Text numberOfLines={1} ellipsizeMode="tail">{obj[header.value]}</Text></View>
+                          <View style={JobStyles.valuebox} key={index}>
+                            <View style={JobStyles.keybox}><Text style={JobStyles.label}>{header.text}</Text></View>
+                            <View style={JobStyles.keyvalue}><Text numberOfLines={1} ellipsizeMode="tail">{obj[header.value]}</Text></View>
                           </View>
                         ))
                       }
@@ -157,90 +202,158 @@ const Supports = () => {
           }
         </ScrollView>
       </View>
+      <Modal
+        visible={ShowForm}
+        transparent
+        animationType="fade">
+        <TouchableWithoutFeedback>
+          <View style={JobFormStyle.ApprovalmodalOverlay}>
+            <View style={JobFormStyle.SupportmodalContent}>
+              <View style={JobFormStyle.supportHeadBox}>
+                <MaterialIcons name="support-agent" size={20} color="blue" style={JobStyles.icon} />
+                <Text>Support</Text>
+              </View>
+              <View style={JobFormStyle.supportFormBox}>
+                <View style={JobFormStyle.fieldbox}>
+                  <View style={JobFormStyle.labelbox}>
+                    <Text>Title<Text style={JobFormStyle.cr}>*</Text></Text>
+                  </View>
+                  <TextInput
+                    mode="outlined"
+                    style={JobFormStyle.input}
+                    outlineStyle={JobFormStyle.TextInputoutline}
+                    placeholder={'Enter Title'}
+                    value={Report.Title || ''}
+                    placeholderTextColor={'#999'}
+                    onChangeText={(text) => handleChange('Title', text)}
+                  />
+                </View>
+                <View style={JobFormStyle.fieldbox}>
+                  <View style={JobFormStyle.labelbox}>
+                    <Text>Type<Text style={JobFormStyle.cr}>*</Text></Text>
+                  </View>
+                  <Dropdown
+                    style={JobFormStyle.dropdown}
+                    containerStyle={JobFormStyle.dropdownContainer}
+                    placeholderStyle={JobFormStyle.placeholderStyle}
+                    selectedTextStyle={JobFormStyle.selectedTextStyle}
+                    itemTextStyle={JobFormStyle.itemTextStyle}
+                    inputSearchStyle={JobFormStyle.inputSearchStyle}
+                    data={Type}
+                    search
+                    maxHeight={300}
+                    labelField="name"
+                    valueField="value"
+                    placeholder={`Select`}
+                    searchPlaceholder="Search..."
+                    value={Report.Type || ''}
+                    onChange={item => {
+                      handleChange('Type', item.value)
+                    }}
+                    renderItem={(item) => selectedoption(item.name, Report.Type)}
+                  />
+                </View>
+                <View style={JobFormStyle.fieldbox}>
+                  <View style={JobFormStyle.labelbox}>
+                    <Text>Severity<Text style={JobFormStyle.cr}>*</Text></Text>
+                  </View>
+                  <Dropdown
+                    style={JobFormStyle.dropdown}
+                    containerStyle={JobFormStyle.dropdownContainer}
+                    placeholderStyle={JobFormStyle.placeholderStyle}
+                    selectedTextStyle={JobFormStyle.selectedTextStyle}
+                    itemTextStyle={JobFormStyle.itemTextStyle}
+                    inputSearchStyle={JobFormStyle.inputSearchStyle}
+                    data={severity}
+                    search
+                    maxHeight={300}
+                    labelField="name"
+                    valueField="value"
+                    placeholder={`Select`}
+                    searchPlaceholder="Search..."
+                    value={Report.Severity || ''}
+                    onChange={item => {
+                      handleChange('Severity', item.value)
+                    }}
+                    renderItem={(item) => selectedoption(item.value, Report.Severity)}
+                  />
+                </View>
+                <View style={JobFormStyle.fieldbox}>
+                  <View style={JobFormStyle.labelbox}>
+                    <Text>Status<Text style={JobFormStyle.cr}>*</Text></Text>
+                  </View>
+                  <Dropdown
+                    style={JobFormStyle.dropdown}
+                    containerStyle={JobFormStyle.dropdownContainer}
+                    placeholderStyle={JobFormStyle.placeholderStyle}
+                    selectedTextStyle={JobFormStyle.selectedTextStyle}
+                    itemTextStyle={JobFormStyle.itemTextStyle}
+                    inputSearchStyle={JobFormStyle.inputSearchStyle}
+                    data={Status}
+                    search
+                    maxHeight={300}
+                    labelField="name"
+                    valueField="value"
+                    placeholder={`Select`}
+                    searchPlaceholder="Search..."
+                    value={Report.Status || ''}
+                    onChange={item => {
+                      handleChange('Status', item.value)
+                    }}
+                    renderItem={(item) => selectedoption(item.value, Report.Status)}
+                  />
+                </View>
+                <View style={JobFormStyle.fieldbox}>
+                  <View style={JobFormStyle.labelbox}>
+                    <Text>Attachment</Text>
+                  </View>
+                  <TextInput
+                    mode="outlined"
+                    style={JobFormStyle.input}
+                    outlineStyle={JobFormStyle.TextInputoutline}
+                    value={Report.Attachment || ''}
+                    placeholderTextColor={'#999'}
+                  />
+                </View>
+                <View style={JobFormStyle.fieldbox}>
+                  <View style={JobFormStyle.labelbox}>
+                    <Text>Remarks<Text style={JobFormStyle.cr}>*</Text></Text>
+                  </View>
+                  <TextInput
+                    mode="outlined"
+                    style={JobFormStyle.input}
+                    outlineStyle={JobFormStyle.TextInputoutline}
+                    placeholder={'Enter Remarks'}
+                    value={Report.Remarks || ''}
+                    placeholderTextColor={'#999'}
+                    onChangeText={(text) => handleChange('Remarks', text)}
+                  />
+                </View>
+                <View style={JobFormStyle.fieldbox}>
+                  <View style={JobFormStyle.labelbox}>
+                    <Text>Description</Text>
+                  </View>
+                  <TextInput
+                    mode="outlined"
+                    style={JobFormStyle.input}
+                    outlineStyle={JobFormStyle.TextInputoutline}
+                    placeholder={'Enter Description'}
+                    value={Report.Description || ''}
+                    placeholderTextColor={'#999'}
+                    onChangeText={(text) => handleChange('Description', text)}
+                  />
+                </View>
+              </View>
+              <View style={JobFormStyle.actionbox}>
+                <TouchableOpacity style={[JobFormStyle.btn, JobFormStyle.gray]} onPress={() => setShowForm(false)}><Text style={JobFormStyle.cw}>Close</Text></TouchableOpacity>
+                <TouchableOpacity style={[JobFormStyle.btn, JobFormStyle.green]} onPress={submit}><Text style={JobFormStyle.cw}>Submit</Text></TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
     </View>
   )
 }
 
 export default Supports
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     width: '100%',
-//     alignItems: 'center',
-//   },
-//   head: {
-//     height: 40,
-//     width: '100%',
-//     // backgroundColor: 'gray',
-//     flexDirection: 'row',
-//     justifyContent: 'space-between'
-//   },
-//   box1: {
-//     height: '100%',
-//     width: '25%',
-//     // backgroundColor: '#74D4FF',
-//     flexDirection: 'row',
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//     gap: 10
-//   },
-//   headtext: {
-//     fontWeight: 'bold'
-//   },
-//   serachBox: {
-//     height: 50,
-//     width: '100%',
-//     // justifyContent: 'center',
-//     alignItems: 'center',
-//     // backgroundColor: 'yellow'
-//   },
-//   search: {
-//     height: '70%',
-//     width: '80%',
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//     borderWidth: 1,
-//     borderColor: '#ccc',
-//     borderRadius: 25,
-//     paddingHorizontal: 10,
-//     backgroundColor: '#fff',
-//   },
-//   Table: {
-//     height: '100%',
-//   },
-//   headerRow: {
-//     flexDirection: 'row',
-//     backgroundColor: '#f2f2f2',
-//   },
-//   headerCell: {
-//     width: 110,
-//     height: 40,
-//     backgroundColor: '#2B7FFF',
-//     fontWeight: 'bold',
-//     textAlign: 'center',         // center horizontally
-//     textAlignVertical: 'center', // center vertically (Android)
-//     color: '#fff',
-//     borderRightWidth: 1,
-//     borderBottomWidth: 1,
-//     borderColor: '#ccc',         // matches data cell border
-//     paddingLeft: 15,
-//     paddingRight: 5
-//   },
-//   row: {
-//     flexDirection: 'row',
-//   },
-//   cell: {
-//     width: 110,                // fixed column width1
-//     height: 40,                // fixed row height     // horizontal padding
-//     // textAlign: 'center',       // center horizontally
-//     textAlignVertical: 'center',
-//     borderRightWidth: 1,
-//     borderBottomWidth: 1,
-//     borderColor: '#ccc',       // light border color
-//     backgroundColor: '#FFF',
-//     paddingLeft: 15,
-//     paddingRight: 5
-//   }
-
-// })

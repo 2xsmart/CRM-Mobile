@@ -1,19 +1,15 @@
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { TextInput, RadioButton } from 'react-native-paper';
 import { Dropdown, MultiSelect } from 'react-native-element-dropdown';
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { format } from "date-fns";
-import { useFocusEffect } from '@react-navigation/native';
-import styles from '../../Styles/JobFormStyle';
+import JobFormStyle from '../../Styles/JobForm';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import api from '../../../Plugins/axios';
 import { iconsize } from '../../../Constants/dimensions';
 
 const SubJobForm = ({ route, navigation }) => {
   const SJobId = route.params.id;
-  const PageName = route.params.name;
   const Action = route.params.action;
 
   const [Fields, setFields] = useState([]);
@@ -114,12 +110,12 @@ const SubJobForm = ({ route, navigation }) => {
     if (field.type === 'text' || field.type === 'textArea') {
       return (
         <>
-          <View style={styles.labelbox}>
+          <View style={JobFormStyle.labelbox}>
             <Text>{field.name}</Text>
           </View>
           <TextInput
             mode="outlined"
-            style={styles.input}
+            style={JobFormStyle.input}
             outlineStyle={{ borderColor: '#71717B', borderWidth: 1 }}
             placeholder={`Enter ${field.name}`}
             value={SubJobData[field.id] ? String(SubJobData[field.id]) : ''}
@@ -132,12 +128,12 @@ const SubJobForm = ({ route, navigation }) => {
     else if (field.type === 'number') {
       return (
         <>
-          <View style={styles.labelbox}>
+          <View style={JobFormStyle.labelbox}>
             <Text>{field.name}</Text>
           </View>
           <TextInput
             mode="outlined"
-            style={styles.input}
+            style={JobFormStyle.input}
             outlineStyle={{ borderColor: '#71717B', borderWidth: 1 }}
             keyboardType="number-pad"
             placeholder={`Enter ${field.name}`}
@@ -150,16 +146,16 @@ const SubJobForm = ({ route, navigation }) => {
     }
     else if (field.type === 'singleSelect') {
       return (<>
-        <View style={styles.labelbox}>
+        <View style={JobFormStyle.labelbox}>
           <Text>{field.name}</Text>
         </View>
         <Dropdown
-          style={styles.dropdown}
-          containerStyle={styles.dropdownContainer}
-          placeholderStyle={styles.placeholderStyle}
-          selectedTextStyle={styles.selectedTextStyle}
-          itemTextStyle={styles.itemTextStyle}
-          inputSearchStyle={styles.inputSearchStyle}
+          style={JobFormStyle.dropdown}
+          containerStyle={JobFormStyle.dropdownContainer}
+          placeholderStyle={JobFormStyle.placeholderStyle}
+          selectedTextStyle={JobFormStyle.selectedTextStyle}
+          itemTextStyle={JobFormStyle.itemTextStyle}
+          inputSearchStyle={JobFormStyle.inputSearchStyle}
           data={field.options}
           search
           maxHeight={300}
@@ -177,18 +173,18 @@ const SubJobForm = ({ route, navigation }) => {
     else if (field.type === 'multiSelect') {
       return (
         <>
-          <View style={styles.labelbox}>
+          <View style={JobFormStyle.labelbox}>
             <Text>{field.name}</Text>
           </View>
           <MultiSelect
-            style={styles.dropdown}
-            containerStyle={styles.dropdownContainer}
+            style={JobFormStyle.dropdown}
+            containerStyle={JobFormStyle.dropdownContainer}
             placeholder={displayText(SubJobData[field.id], field.name)}
             placeholderStyle={{ color: SubJobData[field.id]?.length > 0 ? '#000' : '#999' }}
             selectedStyle={{ display: 'none' }}
             selectedTextStyle={{ color: 'transparent', }} // hide selected items
-            itemTextStyle={styles.itemTextStyle}
-            inputSearchStyle={styles.inputSearchStyle}
+            itemTextStyle={JobFormStyle.itemTextStyle}
+            inputSearchStyle={JobFormStyle.inputSearchStyle}
             searchPlaceholder="Search..."
             data={field.options}
             search
@@ -204,13 +200,13 @@ const SubJobForm = ({ route, navigation }) => {
     }
     else if (field.type === 'radio') {
       return (<>
-        <View style={styles.labelbox}>
+        <View style={JobFormStyle.labelbox}>
           <Text>{field.name}</Text>
         </View>
-        <View style={styles.row}>
+        <View style={JobFormStyle.row}>
           {
             field.options.length > 0 && field.options.map((item, index) => (
-              <View key={item.value} style={styles.option}>
+              <View key={item.value} style={JobFormStyle.option}>
                 <View style={{ transform: [{ scale: 0.8 }] }}>
                   <RadioButton
                     value={String(item.value) || ''}
@@ -229,10 +225,10 @@ const SubJobForm = ({ route, navigation }) => {
     else if (field.type === 'date') {
       return (
         <>
-          <View style={styles.labelbox}>
+          <View style={JobFormStyle.labelbox}>
             <Text>{field.name}</Text>
           </View>
-          <TouchableOpacity style={styles.calendar} >
+          <TouchableOpacity style={JobFormStyle.calendar} >
             <FontAwesome5 name="calendar-alt" size={iconsize.sm} color="#FFF" style={{ backgroundColor: '#0343CE', width: '12%', paddingLeft: 10, paddingVertical: 6 }} onPress={() => setShow(field.id)} />
             <Text style={{ width: '100%', paddingVertical: 10 }}>{SubJobData[field.id] ? String(SubJobData[field.id]) : ''}</Text>
           </TouchableOpacity>
@@ -249,12 +245,12 @@ const SubJobForm = ({ route, navigation }) => {
     }
     else if (field.type === 'file') {
       return (<>
-        <View style={styles.labelbox}>
+        <View style={JobFormStyle.labelbox}>
           <Text>{field.name}</Text>
         </View>
         <TextInput
           mode="outlined"
-          style={styles.input}
+          style={JobFormStyle.input}
           placeholder={`Enter ${field.name}`}
           value={SubJobData[field.id] ? String(SubJobData[field.id]) : ''}
           placeholderTextColor={'#999'}
@@ -290,31 +286,28 @@ const SubJobForm = ({ route, navigation }) => {
   }, [SJobId])
 
   return (
-    <View style={styles.container}>
-      {/* <View style={styles.head}>
-        <Text style={styles.headtext}>{Tab}</Text>
-        <Text style={[styles.headtext]}>{SubJob[0]?.SJUID?.toString() || ''}</Text>
-      </View> */}
-      <View style={styles.fieldsbox}>
-        <ScrollView contentContainerStyle={styles.scrollbox}>
+    <View style={JobFormStyle.container}>
+      <View style={JobFormStyle.head}>
+        <Text style={[JobFormStyle.headtext]}>{SubJob[0]?.SJUID?.toString() || ''}</Text>
+        <Text style={JobFormStyle.headtext}>{Tab}</Text>
+      </View>
+      <View style={Action ? JobFormStyle.fieldsbox : JobFormStyle.fieldsbox1}>
+        <ScrollView contentContainerStyle={JobFormStyle.scrollbox}>
           {
             Fields.length > 0 && Fields.map((field) => {
-              return <View style={styles.fieldbox} key={field.id}>
+              return <View style={JobFormStyle.fieldbox} key={field.id}>
                 {renderField(field)}
               </View>
             })
           }
         </ScrollView>
       </View>
-      <View style={styles.actionbox}>
-        <TouchableOpacity style={[styles.btn, styles.gray]} onPress={() => navigation.navigate(PageName)}><Text style={styles.cw}>Close</Text></TouchableOpacity>
-        {
-          Action && <>
-            <TouchableOpacity style={[styles.btn, styles.green]}><Text style={styles.cw}>Save</Text></TouchableOpacity>
-            <TouchableOpacity style={[styles.btn, styles.green]}><Text style={styles.cw}>Submit</Text></TouchableOpacity>
-          </>
-        }
-      </View>
+      {
+        Action && <View style={JobFormStyle.actionbox}>
+          <TouchableOpacity style={[JobFormStyle.btn, JobFormStyle.green]}><Text style={JobFormStyle.cw}>Save</Text></TouchableOpacity>
+          <TouchableOpacity style={[JobFormStyle.btn, JobFormStyle.green]}><Text style={JobFormStyle.cw}>Submit</Text></TouchableOpacity>
+        </View>
+      }
     </View>
   )
 }

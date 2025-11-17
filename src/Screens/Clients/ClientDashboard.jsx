@@ -10,6 +10,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import api from '../../Plugins/axios';
 import { PieChart } from 'react-native-chart-kit';
+import DashStyles from '../Styles/Dashboard';
+import JobStyles from '../Styles/Jobs';
 
 const ClientDashboard = () => {
   const [Name, setname] = useState('');
@@ -22,29 +24,7 @@ const ClientDashboard = () => {
   const [Statusdata, setStatusdata] = useState([]);
 
   const screenWidth = Dimensions.get('window').width;
-  // const data = [
-  //   {
-  //     name: 'JavaScript',
-  //     population: 50,
-  //     color: '#f39c12',
-  //     legendFontColor: '#333',
-  //     legendFontSize: 14,
-  //   },
-  //   {
-  //     name: 'Python',
-  //     population: 30,
-  //     color: '#2ecc71',
-  //     legendFontColor: '#333',
-  //     legendFontSize: 14,
-  //   },
-  //   {
-  //     name: 'Java',
-  //     population: 20,
-  //     color: '#3498db',
-  //     legendFontColor: '#333',
-  //     legendFontSize: 14,
-  //   }
-  // ];
+
   // 🎨 Function to generate random bright colors
   const getRandomColor = () => {
     const letters = '89ABCDEF'; // use only bright hex codes
@@ -104,6 +84,7 @@ const ClientDashboard = () => {
       console.log('err', err);
     })
   };
+  const totalJobs = Jobs.length + Audit.length + Completed.length
   useFocusEffect(
     useCallback(() => {
       getStatus();
@@ -129,65 +110,73 @@ const ClientDashboard = () => {
       acc[status] = (acc[status] || 0) + 1;
       return acc;
     }, {});
-    console.log(grouped);
     const data1 = Object.entries(grouped).map(([name, population], i) => ({
       name,
       population,
       color: getRandomColor(),
       legendFontColor: '#333',
       legendFontSize: 14
-    }));
+    })).filter(obj => obj.name && obj.name !== 'undefined');
+    // console.log(data1);
     setStatusdata(data1)
     // setJobs(data)
     // 
   }, [Jobs])
   return (
-    <View style={styles.container}>
-      <View style={styles.headbox}>
-        <View style={styles.head}>
-          <MaterialIcons name={'dashboard'} size={iconsize.sm} color='#2B7FFF' />
-          <Text style={styles.headtext}>Dashboard</Text>
+    <View style={DashStyles.container}>
+      <View style={DashStyles.profilebox}>
+        <View style={DashStyles.profileiconbox}><FontAwesome6 name={'circle-user'} size={iconsize.xl} color='#FF5C01' /></View>
+        <View style={DashStyles.profilename}>
+          <Text style={JobStyles.cw}>Welcome</Text>
+          <Text style={JobStyles.cw}>{Name}!</Text>
         </View>
       </View>
-      <View style={styles.content}>
-        <View style={[styles.profilebox]}>
-          <FontAwesome6 name={'circle-user'} size={iconsize.lg} />
-          <Text >{Name}</Text>
-        </View>
-        <View style={[styles.box, { backgroundColor: '#00796B' }]}>
-          <FontAwesome name={'briefcase'} size={iconsize.lg} color='#fff' />
-          <View style={styles.box1}>
-            <Text style={styles.boxtext}>{Jobs.length}</Text>
-            <Text style={styles.boxtext}>Current</Text>
+      <View style={DashStyles.content}>
+        <View style={DashStyles.box}>
+          <View style={DashStyles.box1}>
+            <View style={DashStyles.box1icon}><FontAwesome name={'tasks'} size={iconsize.sm} color='#FF5C01' /></View>
+            <View style={DashStyles.box1Text}>
+              <Text style={DashStyles.boxtext}>{totalJobs}</Text>
+              <Text style={DashStyles.boxtext}>Total Jobs</Text>
+            </View>
+          </View>
+          <View style={DashStyles.box1}>
+            <View style={DashStyles.box1icon}>
+              <FontAwesome name={'briefcase'} size={iconsize.sm} color='#FF5C01' />
+            </View>
+            <View style={DashStyles.box1Text}>
+              <Text style={DashStyles.boxtext}>{Jobs.length}</Text>
+              <Text style={DashStyles.boxtext}>All Jobs</Text>
+            </View>
+          </View>
+          <View style={DashStyles.box1}>
+            <View style={DashStyles.box1icon}><Ionicons name={'eye'} size={iconsize.sm} color='#FF5C01' /></View>
+            <View style={DashStyles.box1Text}>
+              <Text style={DashStyles.boxtext}>{Audit.length}</Text>
+              <Text style={DashStyles.boxtext}>Audit</Text>
+            </View>
+          </View>
+          <View style={DashStyles.box1}>
+            <View style={DashStyles.box1icon}><FontAwesome name={'bookmark'} size={iconsize.sm} color='#FF5C01' /></View>
+            <View style={DashStyles.box1Text}>
+              <Text style={DashStyles.boxtext}>{Completed.length}</Text>
+              <Text style={DashStyles.boxtext}>Completed</Text>
+            </View>
           </View>
         </View>
-        <View style={[styles.box, { backgroundColor: '#D81B60' }]}>
-          <Ionicons name={'eye'} size={iconsize.lg} color='#fff' />
-          <View style={styles.box1}>
-            <Text style={styles.boxtext}>{Audit.length}</Text>
-            <Text style={styles.boxtext}>Audit</Text>
-          </View>
-        </View>
-        <View style={[styles.box, { backgroundColor: '#512DA8' }]}>
-          <FontAwesome name={'bookmark'} size={iconsize.lg} color='#fff' />
-          <View style={styles.box1}>
-            <Text style={styles.boxtext}>{Completed.length}</Text>
-            <Text style={styles.boxtext}>Completed</Text>
-          </View>
-        </View>
-        <View style={styles.chartbox}>
-          <Text style={styles.title}>Current Jobs</Text>
+        <View style={DashStyles.chartbox}>
+          <View style={DashStyles.textbox}><Text style={DashStyles.boxtext}>All Jobs Status</Text></View>
           <PieChart
             data={Statusdata}
             width={screenWidth - 20}
-            height={100}
+            height={160}
             chartConfig={{
               color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
             }}
             accessor={'population'}
             backgroundColor={'transparent'}
-            paddingLeft={'5'}
-            absolute // shows actual numbers instead of percentage
+            paddingLeft={'10'}
+            absolute={false}
           />
         </View>
       </View>

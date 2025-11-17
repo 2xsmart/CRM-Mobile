@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 
-const jobsstyles = StyleSheet.create({
+const JobStyles = StyleSheet.create({
   w100: {
     width: '100%',
   },
@@ -95,7 +95,7 @@ const jobsstyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#ccc',
+    // borderColor: '#ccc',
     borderRadius: 25,
     paddingHorizontal: 10,
   },
@@ -133,7 +133,8 @@ const jobsstyles = StyleSheet.create({
   TableHead: {
     height: 30,
     width: '100%',
-    backgroundColor: '#069589',
+    backgroundColor: '#204D74',
+    // backgroundColor: '#069589',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -233,4 +234,4 @@ const jobsstyles = StyleSheet.create({
 
 })
 
-export default jobsstyles;
+export default JobStyles;

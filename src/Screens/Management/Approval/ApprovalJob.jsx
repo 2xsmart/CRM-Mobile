@@ -1,16 +1,15 @@
-import { Text, View, TextInput, ActivityIndicator, ScrollView, Pressable } from 'react-native'
+import { Text, View, TextInput, ScrollView, Pressable } from 'react-native'
 import React, { useCallback, useEffect, useState } from 'react';
 import FontAwesome from 'react-native-vector-icons/FontAwesome'
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import api from '../../../Plugins/axios';
 import { iconsize } from '../../../Constants/dimensions';
-import jobsstyles from '../../Styles/JobsStyle';
+import JobStyles from '../../Styles/Jobs';
 import Loader from '../../Loader';
 
-const MyApproval = ({ navigation }) => {
+const ApprovalJob = ({ navigation }) => {
   const [search, setSearch] = useState('');
   const [headers, setheaders] = useState();
   const [loading, setLoading] = useState(true);
@@ -44,21 +43,26 @@ const MyApproval = ({ navigation }) => {
   };
   const getJobs = async () => {
     const userId = await AsyncStorage.getItem('userId')
-    await api.get(`/ApprovalData/mydata/${userId}`).then((res) => {
+    await api.get(`/ApprovalData/mydata/job/${userId}`).then((res) => {
       const data = res.data;
       if (data.length) {
         setmyjobs(data)
-        // console.log(data);
       }
       else {
         setLoading(false);
+        setmyjobs(data)
       }
     }).catch((err) => {
       console.log('err', err);
     })
   };
   const navigate = (id) => {
-    navigation.navigate('ApprovalJob', { id, name: 'MyApproval' })
+    navigation.navigate('ApprovalStack', {
+      screen: 'ApprovalJobForm',
+      params: {
+        id
+      }
+    })
     // navigation.navigate('JobForm', { id, name: 'AllJobs', action: false})
   };
   useFocusEffect(
@@ -87,23 +91,16 @@ const MyApproval = ({ navigation }) => {
       setLoading(false);
     }
   }, [filteredJobs]);
-  if (loading) return <View style={jobsstyles.loadingbox}>
+  if (loading) return <View style={JobStyles.loadingbox}>
     <Loader />
-
   </View>
   return (
-    <View style={jobsstyles.container}>
-      {/* <View style={jobsstyles.head}>
-        <View style={jobsstyles.box1}>
-          <MaterialCommunityIcons name={'lock-check'} size={iconsize.sm} color='#2B7FFF' />
-          <Text style={jobsstyles.headtext}>My Approval</Text>
-        </View>
-      </View> */}
-      <View style={jobsstyles.searchBox}>
-        <View style={jobsstyles.search}>
-          <Icon name="search" size={20} color="#888" style={jobsstyles.icon} />
+    <View style={JobStyles.container}>
+      <View style={JobStyles.searchBox}>
+        <View style={JobStyles.search}>
+          <Icon name="search" size={20} color="#888" style={JobStyles.icon} />
           <TextInput
-            style={jobsstyles.input}
+            style={JobStyles.input}
             placeholder="Search..."
             value={search}
             onChangeText={(text) => setSearch(text)}
@@ -111,31 +108,31 @@ const MyApproval = ({ navigation }) => {
           />
         </View>
       </View>
-      <View style={jobsstyles.Table}>
-        <ScrollView contentContainerStyle={jobsstyles.scrollbox}>
+      <View style={JobStyles.Table}>
+        <ScrollView contentContainerStyle={JobStyles.scrollbox}>
           {
-            filteredJobs.length === 0 ? <View style={jobsstyles.Nodata}>
+            filteredJobs.length === 0 ? <View style={JobStyles.Nodata}>
               <Text style={{ color: 'red' }}>No Data Found</Text>
             </View> :
               filteredJobs.map((obj, i) => {
                 return (
-                  <View key={i} style={jobsstyles.Tablebox}>
-                    <View style={jobsstyles.TableHead}>
-                      <Text style={jobsstyles.cw}>{obj[3]}</Text>
-                      <Pressable style={jobsstyles.openjobicon} onPress={() => { navigate(obj.id) }}>
+                  <View key={i} style={JobStyles.Tablebox}>
+                    <View style={JobStyles.TableHead}>
+                      <Text style={JobStyles.cw}>{obj[3]}</Text>
+                      <Pressable style={JobStyles.openjobicon} onPress={() => { navigate(obj.id) }}>
                         <FontAwesome name='angle-right' color='#fff' size={iconsize.sm} />
                       </Pressable>
                     </View>
-                    <View style={jobsstyles.TableValues}>
+                    <View style={JobStyles.TableValues}>
                       {
                         headers.length > 0 ? headers.map((head, index) => {
                           return (
-                            <View style={jobsstyles.valuebox} key={index}>
-                              <View style={jobsstyles.keybox}><Text style={jobsstyles.label}>{head.value}</Text></View>
-                              <View style={jobsstyles.keyvalue}><Text>{obj[head.fieldId]}</Text></View>
+                            <View style={JobStyles.valuebox} key={index}>
+                              <View style={JobStyles.keybox}><Text style={JobStyles.label}>{head.value}</Text></View>
+                              <View style={JobStyles.keyvalue}><Text>{obj[head.fieldId]}</Text></View>
                             </View>
                           )
-                        }) : <View style={jobsstyles.Nodata}>
+                        }) : <View style={JobStyles.Nodata}>
                           <Text style={{ color: 'red' }}>No Data Found</Text>
                         </View>
                       }
@@ -152,4 +149,4 @@ const MyApproval = ({ navigation }) => {
   )
 }
 
-export default MyApproval
+export default ApprovalJob

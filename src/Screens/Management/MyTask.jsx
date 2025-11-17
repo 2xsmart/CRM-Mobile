@@ -1,13 +1,11 @@
-import { StyleSheet, Text, View, TextInput, TouchableHighlight, TouchableOpacity, ActivityIndicator, ScrollView, Pressable } from 'react-native'
+import { Text, View, TextInput, ScrollView, Pressable } from 'react-native'
 import React, { useCallback, useEffect, useState } from 'react';
 import FontAwesome from 'react-native-vector-icons/FontAwesome'
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import Icon from 'react-native-vector-icons/Ionicons'; // npm install react-native-vector-icons
+import Icon from 'react-native-vector-icons/Ionicons';
 import { useFocusEffect } from '@react-navigation/native';
 import { iconsize } from '../../Constants/dimensions';
 import api from '../../Plugins/axios';
-import jobsstyles from '../Styles/JobsStyle';
+import JobStyles from '../Styles/Jobs';
 import Loader from '../Loader';
 
 
@@ -22,6 +20,7 @@ const MyTask = ({ navigation }) => {
   const [Users, setUsers] = useState([]);
   const [Mytask, setMytask] = useState([]);
   const [filteredJobs, setFilteredJobs] = useState(Mytask);
+
 
   const getStatus = async () => {
     await api.get('/status').then((res) => {
@@ -87,6 +86,8 @@ const MyTask = ({ navigation }) => {
   };
   useFocusEffect(
     useCallback(() => {
+      // const state = navigation.getState();
+      // console.log('🧭 Current Navigation State:', state);
       getStatus()
       getSubStatus()
       getClient()
@@ -117,23 +118,17 @@ const MyTask = ({ navigation }) => {
       setLoading(false);
     }
   }, [filteredJobs]);
-  if (loading) return <View style={jobsstyles.loadingbox}>
+  if (loading) return <View style={JobStyles.loadingbox}>
     <Loader />
 
   </View>
   return (
-    <View style={jobsstyles.container}>
-      {/* <View style={jobsstyles.head}>
-        <View style={jobsstyles.box1}>
-          <FontAwesome name={'tasks'} size={iconsize.sm} color='#2B7FFF' />
-          <Text style={jobsstyles.headtext}>My Task</Text>
-        </View>
-      </View> */}
-      <View style={jobsstyles.searchBox}>
-        <View style={jobsstyles.search}>
-          <Icon name="search" size={20} color="#888" style={jobsstyles.icon} />
+    <View style={JobStyles.container}>
+      <View style={JobStyles.searchBox}>
+        <View style={JobStyles.search}>
+          <Icon name="search" size={20} color="#888" style={JobStyles.icon} />
           <TextInput
-            style={jobsstyles.input}
+            style={JobStyles.input}
             placeholder="Search..."
             value={search}
             onChangeText={(text) => setSearch(text)}
@@ -141,29 +136,35 @@ const MyTask = ({ navigation }) => {
           />
         </View>
       </View>
-      <View style={jobsstyles.Table}>
-        <ScrollView contentContainerStyle={jobsstyles.scrollbox}>
+      <View style={JobStyles.Table}>
+        <ScrollView contentContainerStyle={JobStyles.scrollbox}>
           {
-            filteredJobs.length === 0 ? <View style={jobsstyles.Nodata}>
-              <Text style={{ color: 'red' }}>No Data Found</Text>
+            filteredJobs.length === 0 ? <View style={JobStyles.Nodata}>
+              <Text style={JobStyles.cr}>No Data Found</Text>
             </View> :
               filteredJobs.map((obj, i) => {
                 return (
-                  <View key={i} style={jobsstyles.Tablebox}>
-                    <View style={jobsstyles.TableHead}>
-                      <Text style={jobsstyles.cw}>{obj.UID}</Text>
+                  <View key={i} style={JobStyles.Tablebox}>
+                    <View style={JobStyles.TableHead}>
+                      <Text style={JobStyles.cw}>{obj.UID}</Text>
                       <Pressable
-                        style={jobsstyles.openjobicon}
-                        onPress={() => navigation.navigate('JobForm', { id: obj.id, name: 'MyTask', action: false })}>
+                        style={JobStyles.openjobicon}
+                        onPress={() => navigation.navigate('HomeStack', {
+                          screen: 'JobForm',
+                          params: {
+                            id: obj.id,
+                            action: true
+                          }
+                        })}>
                         <FontAwesome name='angle-right' color='#fff' size={iconsize.sm} />
                       </Pressable>
                     </View>
-                    <View style={jobsstyles.TableValues}>
+                    <View style={JobStyles.TableValues}>
                       {
                         headers.map((header, index) =>
-                          <View style={jobsstyles.valuebox} key={index}>
-                            <View style={jobsstyles.keybox}><Text style={jobsstyles.label}>{header}</Text></View>
-                            <View style={jobsstyles.keyvalue}><Text numberOfLines={1} ellipsizeMode="tail">{obj[header]}</Text></View>
+                          <View style={JobStyles.valuebox} key={index}>
+                            <View style={JobStyles.keybox}><Text style={JobStyles.label}>{header}</Text></View>
+                            <View style={JobStyles.keyvalue}><Text numberOfLines={1} ellipsizeMode="tail">{obj[header]}</Text></View>
                           </View>
                         )
                       }
@@ -180,117 +181,3 @@ const MyTask = ({ navigation }) => {
 }
 
 export default MyTask
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    width: '100%',
-    alignItems: 'center'
-  },
-  head: {
-    height: 40,
-    width: '100%',
-    // backgroundColor: 'gray',
-    flexDirection: 'row',
-    justifyContent: 'space-between'
-  },
-  box1: {
-    height: '100%',
-    width: '25%',
-    // backgroundColor: '#74D4FF',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 10
-  },
-  headtext: {
-    fontWeight: 'bold'
-  },
-  serachBox: {
-    height: 50,
-    width: '100%',
-    // justifyContent: 'center',
-    alignItems: 'center',
-    // backgroundColor: 'yellow'
-  },
-  search: {
-    height: '70%',
-    width: '80%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 25,
-    paddingHorizontal: 10,
-    backgroundColor: '#fff',
-  },
-  input: {
-    width: '100%'
-  },
-  Table: {
-    height: '85%',
-    width: '100%',
-  },
-  Tablebox: {
-    height: 150,
-    width: '90%',
-    // borderWidth: 1,
-    backgroundColor: "#fff",
-    borderRadius: 8,
-    // iOS shadow
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    // Android shadow
-    elevation: 5,
-  },
-  TableHead: {
-    height: 30,
-    width: '100%',
-    backgroundColor: 'teal',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    borderTopLeftRadius: 8,
-    borderTopRightRadius: 8,
-    elevation: 5,
-  },
-  openjobicon: {
-    width: 30,
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'flex-end',
-    // backgroundColor: '#9D2EFF'
-  },
-  TableValues: {
-    height: 120,
-    width: '100%',
-  },
-  valuebox: {
-    height: 30,
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    // backgroundColor: '#96F7E4'
-  },
-  keybox: {
-    height: 30,
-    width: '45%',
-    justifyContent: 'center',
-    // backgroundColor: '#74D4FF'
-  },
-  keyvalue: {
-    height: 30,
-    width: '45%',
-    justifyContent: 'center',
-    // backgroundColor: '#51A2FF'
-  },
-  label: {
-    fontFamily: 'AntDesign',
-    fontWeight: 'bold'
-  },
-
-})

@@ -1,13 +1,13 @@
 import { Text, View, TextInput, TouchableOpacity, ActivityIndicator, ScrollView, Pressable } from 'react-native'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useFocusEffect } from '@react-navigation/native';
-import jobsstyles from '../Styles/JobsStyle'
+import jobsstyles from '../Styles/Jobs'
 import { iconsize } from '../../Constants/dimensions';
 import FontAwesome from 'react-native-vector-icons/FontAwesome'
 import Icon from 'react-native-vector-icons/Ionicons';
 import api from '../../Plugins/axios';
 
-const Jobs = ({ navigation }) => {
+const ClientJobs = ({ navigation }) => {
 
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
@@ -92,12 +92,6 @@ const Jobs = ({ navigation }) => {
   }
   return (
     <View style={jobsstyles.container}>
-      <View style={jobsstyles.head}>
-        <View style={jobsstyles.box1}>
-          <FontAwesome name={'briefcase'} size={iconsize.sm} color='#2B7FFF' />
-          <Text style={jobsstyles.headtext}>All Jobs</Text>
-        </View>
-      </View>
       <View style={jobsstyles.searchBox}>
         <View style={jobsstyles.search}>
           <Icon name="search" size={20} color="#888" style={jobsstyles.icon} />
@@ -154,4 +148,4 @@ const Jobs = ({ navigation }) => {
   )
 }
 
-export default Jobs
+export default ClientJobs

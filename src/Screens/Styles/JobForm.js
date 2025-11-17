@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 
-const styles = StyleSheet.create({
+const JobFormStyle = StyleSheet.create({
   w100: {
     width: '100%',
   },
@@ -31,11 +31,14 @@ const styles = StyleSheet.create({
   cor: {
     color: '#FF5C01'
   },
+  none: {
+    display: 'none'
+  },
   scrollbox: {
     gap: 15,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 10
+    paddingVertical: 20
   },
   Nodata: {
     height: 50,
@@ -58,7 +61,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 10,
-    backgroundColor: '#0396FF',
+    backgroundColor: '#204D74',
+    // backgroundColor: '#0396FF',
     // backgroundColor: '#069589'
   },
   headtext: {
@@ -99,42 +103,46 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   fieldsbox: {
+    height: '83%',
+    width: '100%',
+  },
+  fieldsbox1: {
     height: '90%',
     width: '100%',
     // backgroundColor: '#8EC5FF',
   },
-  fieldsbox1: {
-    height: '83%',
-    width: '100%',
+  fieldsbox2: {
+    gap: 7,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 10
     // backgroundColor: '#8EC5FF',
   },
   fieldbox: {
-    height: 60,
+    height: 55,
     width: '90%',
-    backgroundColor: '#fff',
-    // backgroundColor: '#BEDBFF',
-    // borderWidth: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    // Android shadow
-    elevation: 5,
-    paddingHorizontal: 5,
-    borderRadius: 5
-
+    gap: 3
+  },
+  formfieldbox: {
+    height: 40,
+    width: '90%',
+    // backgroundColor: '#BEDBFF',
+    flexDirection: 'row',
+    // justifyContent: 'center',
+    alignItems: 'center',
   },
   input: {
     height: 35,
     width: '100%',
     borderColor: 'gray',
     borderRadius: 5,
-    // backgroundColor: 'yellow',
+    backgroundColor: '#fff',
+    // backgroundColor: '#BEDBFF',
   },
   commentbox: {
-    height: '65%'
+    height: 100
   },
   TextBox: {
     height: '70%',
@@ -144,8 +152,8 @@ const styles = StyleSheet.create({
   },
   TextInput: {
     height: 35,
-    borderColor: '#71717B',
-    borderWidth: 1,
+    // borderColor: '#71717B',
+    // borderWidth: 1,
     textAlignVertical: 'center',
     paddingLeft: 5,
     borderRadius: 4,
@@ -238,8 +246,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
+    gap: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    // Android shadow
+    elevation: 3,
+    backgroundColor: '#FFF',
     // backgroundColor: '#204D74',
-    gap: 10
+
   },
   btn: {
     height: 30,
@@ -310,6 +326,28 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 15
   },
-
+  SupportmodalContent: {
+    width: '90%',
+    height: '80%',
+    backgroundColor: "white",
+    alignItems: 'center',
+    borderRadius: 5
+  },
+  supportHeadBox: {
+    height: '10%',
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 10,
+    // backgroundColor: 'orange'
+  },
+  supportFormBox: {
+    height: '80%',
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    // backgroundColor: 'green'
+  }
 })
-export default styles;
+export default JobFormStyle;

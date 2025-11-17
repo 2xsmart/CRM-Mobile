@@ -1,7 +1,7 @@
 import { Text, View, TextInput, TouchableOpacity, ActivityIndicator, ScrollView, Pressable } from 'react-native'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useFocusEffect } from '@react-navigation/native';
-import jobsstyles from '../Styles/JobsStyle'
+import jobsstyles from '../Styles/Jobs'
 import { iconsize } from '../../Constants/dimensions';
 import FontAwesome from 'react-native-vector-icons/FontAwesome'
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -29,7 +29,7 @@ const ClientAudit = () => {
         return obj
       });
       setmyjobs(jobsdata);
-      console.log(res.data);
+      // console.log(res.data);
     }).catch((err) => {
       console.log('err', err);
     })
@@ -90,12 +90,6 @@ const ClientAudit = () => {
   }
   return (
     <View style={jobsstyles.container}>
-      <View style={jobsstyles.head}>
-        <View style={jobsstyles.box1}>
-          <Icon name={'eye'} size={iconsize.sm} color='#2B7FFF' />
-          <Text style={jobsstyles.headtext}>Audit</Text>
-        </View>
-      </View>
       <View style={jobsstyles.searchBox}>
         <View style={jobsstyles.search}>
           <Icon name="search" size={20} color="#888" style={jobsstyles.icon} />

@@ -1,31 +1,31 @@
-import { Text, View, TextInput, TouchableOpacity, ScrollView, Modal, TouchableWithoutFeedback, Pressable } from 'react-native'
+import { Text, View, TextInput, ScrollView, Pressable, Modal, TouchableWithoutFeedback, TouchableOpacity } from 'react-native'
 import React, { useCallback, useEffect, useState } from 'react';
 import FontAwesome from 'react-native-vector-icons/FontAwesome'
+import Icon from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import Icon from 'react-native-vector-icons/Ionicons'; // npm install react-native-vector-icons
 import { useFocusEffect } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import api from '../../../Plugins/axios';
 import { iconsize } from '../../../Constants/dimensions';
-import JobStyles from '../../Styles/Jobs';
-import JobFormStyle from '../../Styles/JobForm';
 import Loader from '../../Loader';
+import JobFormStyle from '../../Styles/JobForm';
+import JobStyles from '../../Styles/Jobs';
 
-
-const SubTask = ({ navigation }) => {
+const ApprovalSubJob = ({ navigation }) => {
   const [search, setSearch] = useState('');
   const [headers, setheaders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [Client, setClient] = useState([]);
   const [myjobs, setmyjobs] = useState([]);
   const [Subjobs, setSubjobs] = useState([]);
-  const [Tabs, setTabs] = useState([]);
-  const [filteredJobs, setFilteredJobs] = useState(Subjobs);
+  const [filteredJobs, setFilteredJobs] = useState(myjobs);
   const [selectedTab, setselectedTab] = useState(0);
+  const [Tabs, setTabs] = useState([]);
   const [visible, setVisible] = useState(false);
 
   const getHeaders = async (id) => {
-    await api.get(`/jobs/SubjobPreferences/${id}`).then((res) => {
+    await api.get(`/jobs/SubjobPreferences/Approval/${id}`).then((res) => {
       const data = res.data;
+      // console.log(data)
       const MobileFields = data
         .filter(obj => obj.mobile === 1)
         .sort((a, b) => a.mobileOrder - b.mobileOrder)
@@ -43,138 +43,71 @@ const SubTask = ({ navigation }) => {
         })).slice(0, 6)
         setheaders(cleanedData)
       }
-      // console.log(MobileFields);
     })
       .catch((err) => {
         console.log('err', err);
       });
   };
-  const getClient = async () => {
-    await api.get('/clients').then((res) => {
-      setClient(res.data)
-    }).catch((err) => {
-      console.log('err', err);
-    })
-  };
-  const getJobs = async () => {
-    await api.post('/jobs/getData').then(async (res) => {
+  const getApprovals = async () => {
+    const userId = await AsyncStorage.getItem('userId')
+    await api.get(`/ApprovalData/mydata/subjob/${userId}`).then((res) => {
       const data = res.data;
       if (data.length) {
-        data.forEach((obj) => {
-          obj.AssignTo = obj.AssignTo ? JSON.parse(obj.AssignTo).map(Number) : []
-          const jobData = obj.details || {};
-          Object.keys(jobData).forEach((th) => {
-            const cleanKey = th.replace(/^primary\./, ''); // remove "primary."
-            const value = jobData[th];
-            obj[cleanKey] = (value && typeof value === 'object') ? value.value : value;
-          });
-          delete obj.details; // remove original details
-        });
-        const NewData = await data.map((job) => {
-          job.Client = Client.find((C) => C.id === job.Client)?.name
-          return job
-        });
-        // console.log(NewData);
-        setmyjobs(NewData)
-      } else {
+        setSubjobs(data)
+        const data1 = data.filter(obj => obj.category === 1);
+        setmyjobs(data1);
+        // console.log(data1);
+      }
+      else {
         setLoading(false);
+        setmyjobs([]);
       }
     }).catch((err) => {
       console.log('err', err);
     })
   };
   const getTabs = async () => {
-    return await api.get('/subjobs').then((res) => {
-      setTabs(res.data);
-      const firstTab = res.data[0].id;
-      handleTabs(firstTab, 0);
-    }).catch((err) => {
-      console.log('Error', err);
-    })
-  };
-  const getSubJobs = async (Tid) => {
-    await api.get(`/subjobscategory/${Tid}`).then((res) => {
-      const data = res.data.map((obj) => {
-        const { id, SJUID, details } = obj;
-        const job = myjobs.find((val) => val.id === obj.JobId)
-        if (job) {
-          const { UID, JobId } = job;
-          details.UID = UID
-          details.Client = job.Client
-          details.JobId = JobId
-          details.id = id
-          details.SID = SJUID
-          return details
-        }
-      }).filter(Boolean)
-      const data1 = data.map(item => {
-        const newItem = {};
-
-        for (const [key, val] of Object.entries(item)) {
-          if (typeof val === 'string') {
-            try {
-              const parsed = JSON.parse(val);
-              if (parsed && typeof parsed === 'object' && 'value' in parsed) {
-                newItem[key] = parsed.value;
-                continue;
-              }
-            } catch (e) {
-              // not JSON → leave it as is
-            }
-          }
-          newItem[key] = val;
-        }
-
-        return newItem;
+    await api.get('/subjobs').then(async (res) => {
+      const data = res.data.map(obj => {
+        obj.fields = JSON.parse(obj.fields) ? JSON.parse(obj.fields) : []
+        return obj
       });
-      const cleanedData = data1.map(obj =>
-        Object.fromEntries(
-          Object.entries(obj).map(([key, value]) => [
-            key,
-            typeof value === "string"
-              ? value.trim().replace(/^"|"$/g, "") // remove wrapping quotes
-              : value
-          ])
-        )
-      );
-      // console.log(cleanedData);
-      setSubjobs(cleanedData);
-    }).catch((err) => {
-      console.log('Error', err);
-    });
+      setTabs(data);
+      await getHeaders(data[0].id)
+      // console.log();
+    }).catch(err => {
+      console.log(err);
+    })
+
   };
   const handleTabs = async (Tid, ind) => {
-    await getSubJobs(Tid);
-    await getHeaders(Tid);
-    setselectedTab(ind);
-    setVisible(false)
-  };
+    await getHeaders(Tid)
+    setselectedTab(ind)
+    const data = Subjobs.filter(obj => obj.category === Tid);
+    setmyjobs(data);
+    console.log(data);
+  }
   useFocusEffect(
     useCallback(() => {
-      setselectedTab(0)
-      getClient()
+      getApprovals();
+      getTabs();
     }, [])
   );
   useEffect(() => {
-    getJobs();
-  }, [Client]);
-  useEffect(() => {
-    getTabs()
-  }, [myjobs]);
-  useEffect(() => {
     if (search.trim() === "") {
-      setFilteredJobs(Subjobs);
+      // console.log(myjobs);
+      setFilteredJobs(myjobs);
     } else {
       const lowerSearch = search.toLowerCase();
       setFilteredJobs(
-        Subjobs.filter(item =>
+        myjobs.filter(item =>
           Object.values(item).some(value =>
             String(value).toLowerCase().includes(lowerSearch)
           )
         )
       );
     }
-  }, [search, Subjobs]);
+  }, [search, myjobs]);
   useEffect(() => {
     if (filteredJobs.length) {
       setLoading(false);
@@ -182,7 +115,6 @@ const SubTask = ({ navigation }) => {
   }, [filteredJobs]);
   if (loading) return <View style={JobStyles.loadingbox}>
     <Loader />
-
   </View>
   return (
     <View style={JobStyles.container}>
@@ -217,11 +149,10 @@ const SubTask = ({ navigation }) => {
                       <Text style={JobStyles.cw}>{obj.SID}</Text>
                       <Pressable
                         style={JobStyles.openjobicon}
-                        onPress={() => navigation.navigate('SubTaskStack', {
-                          screen: 'SubJobForm',
+                        onPress={() => navigation.navigate('ApprovalStack', {
+                          screen: 'ApprovalSubJobForm',
                           params: {
-                            id: obj.id,
-                            action: true
+                            id: obj.id
                           }
                         })}
                       >
@@ -230,11 +161,11 @@ const SubTask = ({ navigation }) => {
                     </View>
                     <View style={JobStyles.TableValues}>
                       {
-                        headers.map((header, index) => {
+                        headers.length > 0 && headers.map((header, index) => {
                           return (
                             <View style={JobStyles.valuebox} key={index}>
                               <View style={JobStyles.keybox}><Text style={JobStyles.label}>{header.value}</Text></View>
-                              <View style={JobStyles.keyvalue}><Text numberOfLines={1} ellipsizeMode="tail">{obj[header.value]}</Text></View>
+                              <View style={JobStyles.keyvalue}><Text numberOfLines={1} ellipsizeMode="tail">{obj[header.fieldId]}</Text></View>
                             </View>
                           )
                         })
@@ -273,5 +204,4 @@ const SubTask = ({ navigation }) => {
   )
 }
 
-export default SubTask
-
+export default ApprovalSubJob

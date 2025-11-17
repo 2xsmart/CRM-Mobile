@@ -1,24 +1,26 @@
 import { Text, View, ScrollView, Modal, TouchableWithoutFeedback, TouchableOpacity } from 'react-native'
 import React, { useEffect, useState } from 'react'
+import JobFormStyle from '../../Styles/JobForm';
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { TextInput } from 'react-native-paper';
 import api from '../../../Plugins/axios';
 import { iconsize } from '../../../Constants/dimensions';
 import Toast from 'react-native-toast-message';
-import JobFormStyle from '../../Styles/JobForm';
 
-const ApprovalJobForm = ({ route, navigation }) => {
+
+const ApprovalSubJobForm = ({ route, navigation }) => {
   const JobId = route.params.id;
   const PageName = route.params.name;
 
   const [Language, setLanguage] = useState('English');
   const [visible, setVisible] = useState(false);
   const [ShowApproval, setShowApproval] = useState(false);
+  const [TabName, setTabName] = useState('');
   const [Tabs, setTabs] = useState([]);
   const [selectedTab, setselectedTab] = useState(0);
   const [TabFields, setTabFields] = useState([]);
-  const [Job, setJob] = useState({});
+  const [SJob, setSJob] = useState('');
   const [form, setForm] = useState({});
   const [ApprovalFields, setApprovalFields] = useState([]);
   const [Approvaldata, setApprovaldata] = useState([]);
@@ -38,170 +40,64 @@ const ApprovalJobForm = ({ route, navigation }) => {
   }).catch(() => {
     setUserId(Number(1))
   });
-  const getJob = async () => {
-    try {
-      const res = await api.get('/ApprovalData/job/' + JobId);
-      setJob(res.data);
-      // console.log(res.data);
-    } catch (error) {
-      console.log('err', error);
-    }
+  const getData = async () => {
+    await api.get(`/ApprovalData/subjob/${JobId}`).then(res => {
+      const { fields, Name, SJobId, subjobData } = res.data;
+      const fieldIds = JSON.parse(fields) ? JSON.parse(fields) : []
+      getFields(fieldIds)
+      setTabName(Name)
+      setSJob(SJobId)
+      setForm(subjobData)
+      // console.log(Name);
+    }).catch(err => {
+      console.log(err);
+    });
   };
-  const getJobData = async () => {
-    try {
-      const res = await api.get('/jobData/' + JobId);
-      const data = res.data;
-      const data1 = {};
-      data.forEach(obj => {
-        if (obj.type === 'singleSelect') {
-          const result = obj.value && typeof obj.value === 'object' ? obj.value.name : obj.value
-          data1[obj.fieldId] = result
-        } else if (obj.type === 'multiSelect') {
-          let result = ''
-          if (Array.isArray(obj.value)) {
-            if (typeof obj.value[0] === 'object') {
-              result = obj.value.map(item => `"${item.name || item.value}"`).join(',')
-            } else {
-              result = obj.value.map(item => `"${item}"`).join(',')
-            }
-          } else if (typeof obj.value === 'string') {
-            result = obj.value
-              .split(',')
-              .map(item => `"${item.trim()}"`)
-              .join(',')
-          }
-          data1[obj.fieldId] = [result][0].replace(/"/g, '').split(',').join(',')
-        } else {
-          data1[obj.fieldId] = obj.value
-        }
-      });
-      // console.log(data1);
-      setForm(data1);
-    } catch (error) {
-      console.log('err', error);
-    }
-  };
-  const gettabs = async () => {
-    try {
-      const res = await api.get('/jobs/fields/' + Language);
-      res.data.push({ name: 'Approval', fields: [] });
-      setTabs(res.data);
-      // console.log(res.data);
-    } catch (error) {
-      console.log('err', error);
-    }
-  };
-  const getFields = async () => {
-    try {
-      const res = await api.get('/fields/active');
-      setFields(res.data)
-      // console.log(res.data);
-    } catch (error) {
-      console.log('err', error);
-    }
-  }
-  const getApprovalFields = async () => {
-    try {
-      const res = await api.get('/ApprovalData/fields/job/' + JobId);
-      const data = res.data
-      const FindTab = Tabs.find((obj) => obj.name === 'Approval')
-      const data1 = Fields.filter((obj) => data.map(val => val.Fid).includes(obj.id))
-      FindTab.fields = data1
-      setTabs(Tabs);
-      handleTabs(Tabs.length - 1, Tabs)
-      setApprovalFields(data.map(val => val.Fid))
-      setApprovaldata(data)
+  const getFields = async (fids) => {
+    await api.get('/fields/subjobconfig').then(res => {
+      const data = fids.map(id => res.data.find(obj => obj.id === id));
+      setTabFields(data);
+      // setFields(data);
       // console.log(data);
-    } catch (error) {
-      console.log('err', error);
-    }
+      getApprovalData(data)
+    }).catch(err => {
+      console.log(err);
+    });
   };
-  const handleTabs = async (ind, Tabs1) => {
+  const getApprovalData = async (fields) => {
+    await api.get(`/ApprovalData/fields/subjob/${JobId}`).then(res => {
+      setApprovaldata(res.data)
+      const Approvalids = res.data.map(obj => obj.Fid);
+      setApprovalFields(Approvalids);
+      const data = fields.filter(obj => Approvalids.includes(obj.id));
+      const tabsData = [
+        {
+          name: TabName,
+          fields: fields
+        },
+        {
+          name: 'Approval',
+          fields: data
+        }
+      ];
+      setTabs(tabsData)
+      handleTabs(1)
+      // console.log(tabsData);
+    }).catch(err => {
+      console.log(err);
+    });
+  };
+  const handleTabs = (ind) => {
     setselectedTab(ind);
-    const data = Tabs1[ind]?.fields
+    const data = Tabs[ind]?.fields
     data.forEach(element => {
       element.name = element.name.replace(/^primary\./, '')
       return element
     });
     setTabFields(data)
     setVisible(false)
-    // console.log(data);
   };
-  const renderField = (field) => {
-    // console.log(form[field.id]);
-
-    switch (field.code) {
-      case 'UID':
-        return <ReadOnlyField label={field.name} value={String(Job.uid || '') || ''} Fid={field.id} />;
-      case 'Job Id':
-        return <ReadOnlyField label={field.name} value={String(Job.jobId || '') || ''} Fid={field.id} />;
-      case 'Status':
-        return <ReadOnlyField label={field.name} value={String(Job.status || '') || ''} Fid={field.id} />;
-      case 'Sub-Status':
-        return <ReadOnlyField label={field.name} value={String(Job.subStatus || '') || ''} Fid={field.id} />;
-      case 'Owner':
-        return <ReadOnlyField label={field.name} value={String(Job.Owner || '') || ''} Fid={field.id} />;
-      case 'Client':
-        return <ReadOnlyField label={field.name} value={String(Job.Client || '') || ''} Fid={field.id} />;
-      case 'AssignTo':
-        return <ReadOnlyField label={field.name} value={String(Job.AssignTo || '')} Fid={field.id} />;
-      default:
-        switch (field.type) {
-          case 'text':
-          case 'textArea':
-          case 'singleSelect':
-          case 'multiSelect':
-          case 'radio':
-          case 'date':
-            return <ReadOnlyField label={field.name} value={String(form[field.id] || '')} Fid={field.id} />;
-          case 'number':
-            return (
-              <ReadOnlyField
-                label={field.name}
-                value={form[field.id] ? String(form[field.id]) : ""}
-                Fid={field.id}
-              />
-            );
-          case 'file':
-            return (
-              <ReadOnlyField
-                label={field.name}
-                value={String(form[field.id] || '')}
-                Fid={field.id}
-              />
-            );
-          default:
-            return null;
-        }
-    }
-
-  };
-  const ReadOnlyField = ({ label, value, Fid }) => (
-    <>
-      {
-        ApprovalFields.includes(Fid) && form[Fid] ? (
-          <>
-            <TextInput label={label} mode="outlined" style={[JobFormStyle.input, JobFormStyle.w90]} value={value} />
-            <View style={JobFormStyle.InputIconBox}>
-              <Icon
-                name="lock"
-                size={iconsize.sm}
-                color="#0054D1"
-                onPress={() => {
-                  setShowApproval(true);
-                  setApprovalField(Fid);
-                }}
-              />
-            </View>
-          </>
-        ) : (
-          <TextInput label={label} mode="outlined" style={[JobFormStyle.input, JobFormStyle.w90]} value={value} />
-        )
-      }
-    </>
-  );
   const Approved = async () => {
-    // console.log('Start');
     const Approval = Approvaldata.find(obj => obj.Fid === ApprovalField);
     Approval.Approvers.map(obj => {
       if (obj.userid === UserId) {
@@ -253,8 +149,6 @@ const ApprovalJobForm = ({ route, navigation }) => {
     }).catch(err => {
       console.log(err);
     });
-    // console.log(data);
-    // console.log(Tabs);
     setShowApproval(false);
   };
   const Denied = async () => {
@@ -362,31 +256,39 @@ const ApprovalJobForm = ({ route, navigation }) => {
     setShowApproval(false);
   };
   useEffect(() => {
-    if (Fields.length && Tabs.length) {
-      getApprovalFields()
-    }
-  }, [Fields, Tabs, JobId])
-  useEffect(() => {
     // console.log(JobId);
-    getJob()
-    getJobData()
-    gettabs()
-    getFields()
+    getData()
   }, [JobId])
   return (
     <View style={JobFormStyle.container}>
       <View style={JobFormStyle.head}>
-        <Text style={JobFormStyle.headtext}>{Job.uid}</Text>
+        <Text style={JobFormStyle.headtext}>{SJob}</Text>
         <Text style={[JobFormStyle.headtext]}>{Tabs[selectedTab]?.name?.toString() || ''}</Text>
         <Icon name="tab" size={iconsize.md} color="#FFF" onPress={() => setVisible(true)} />
       </View>
-      <View style={JobFormStyle.fieldsbox}>
+      <View style={JobFormStyle.fieldsbox1}>
         <ScrollView contentContainerStyle={JobFormStyle.scrollbox}>
           {
             TabFields.length > 0 && TabFields.map((field, index) => {
               // console.log(field);
               return <View style={JobFormStyle.formfieldbox} key={field.id}>
-                {renderField(field)}
+                {
+                  ApprovalFields.includes(field.id) && form[field.id] ? <>
+                    <TextInput label={field.name} mode="outlined" style={[JobFormStyle.input, JobFormStyle.w90]} value={String(form[field.id])} />
+                    <View style={JobFormStyle.InputIconBox}>
+                      <Icon
+                        name="lock"
+                        size={iconsize.sm}
+                        color="#0054D1"
+                        onPress={() => {
+                          setShowApproval(true);
+                          setApprovalField(field.id);
+                        }}
+                      />
+                    </View>
+                  </> :
+                    <TextInput label={field.name} mode="outlined" style={[JobFormStyle.input, JobFormStyle.w100]} value={String(form[field.id] || '')} />
+                }
               </View>
             })
           }
@@ -403,7 +305,7 @@ const ApprovalJobForm = ({ route, navigation }) => {
             <View style={JobFormStyle.modalContent}>
               {
                 Tabs.length > 0 ? Tabs.map((tab, index) =>
-                  <TouchableOpacity style={[JobFormStyle.TabCell, selectedTab === index ? JobFormStyle.blb : JobFormStyle.bb]} key={index} onPress={() => { handleTabs(index, Tabs) }}>
+                  <TouchableOpacity style={[JobFormStyle.TabCell, selectedTab === index ? JobFormStyle.blb : JobFormStyle.bb]} key={index} onPress={() => { handleTabs(index) }}>
                     {
                       tab.name && <Text style={JobFormStyle.TabText}>{tab.name}</Text>
                     }
@@ -444,5 +346,4 @@ const ApprovalJobForm = ({ route, navigation }) => {
   )
 }
 
-export default ApprovalJobForm
-
+export default ApprovalSubJobForm
