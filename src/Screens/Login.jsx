@@ -69,52 +69,61 @@ const Login = ({ navigation }) => {
   };
   const handlesubmit = async () => {
     if (Data.email && Data.password) {
-      const res = await api.post('/login', Data);
-      const loginData = res.data
-      if (loginData && loginData.token && loginData.userLevel) {
-        const fullname = `${loginData.firstName} ${loginData.lastName}`
-        AsyncStorage.setItem('authToken', loginData.token)
-        AsyncStorage.setItem('fname', loginData.firstName)
-        AsyncStorage.setItem('lname', loginData.lastName)
-        AsyncStorage.setItem('fullname', fullname)
-        AsyncStorage.setItem('email', loginData.email)
-        AsyncStorage.setItem('client', String(loginData.client))
-        AsyncStorage.setItem('userlevel', loginData.userLevel)
-        AsyncStorage.setItem('userId', String(loginData.id))
-        AsyncStorage.setItem('Application', loginData.Application)
-        setData({})
-        menuItems()
-        if (loginData.userLevel === 'client') {
+      await api.post('/login', Data).then(res => {
+        const loginData = res.data
+        if (loginData && loginData.token && loginData.userLevel) {
+          const fullname = `${loginData.firstName} ${loginData.lastName}`
+          AsyncStorage.setItem('authToken', loginData.token)
+          AsyncStorage.setItem('fname', loginData.firstName)
+          AsyncStorage.setItem('lname', loginData.lastName)
+          AsyncStorage.setItem('fullname', fullname)
+          AsyncStorage.setItem('email', loginData.email)
+          AsyncStorage.setItem('client', String(loginData.client))
+          AsyncStorage.setItem('userlevel', loginData.userLevel)
+          AsyncStorage.setItem('userId', String(loginData.id))
+          AsyncStorage.setItem('Application', loginData.Application)
+          setData({})
+          menuItems()
+          if (loginData.userLevel === 'client') {
+            Toast.show({
+              type: 'success',
+              text1: 'Login successful 🎉',
+              text2: 'Welcome to the Client Dashboard',
+              visibilityTime: 1000,
+            });
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'ClientDrawer' }]
+            });
+          } else {
+            Toast.show({
+              type: 'success',
+              text1: 'Login successful 🎉',
+              text2: 'Welcome to the Dashboard',
+              visibilityTime: 1000,
+            });
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'MainDrawer' }],
+            });
+          }
+        }
+        else {
           Toast.show({
-            type: 'success',
-            text1: 'Login successful 🎉',
-            text2: 'Welcome to the Client Dashboard',
-            visibilityTime: 1000,
-          });
-          navigation.reset({
-            index: 0,
-            routes: [{ name: 'ClientDrawer' }]
-          });
-        } else {
-          Toast.show({
-            type: 'success',
-            text1: 'Login successful 🎉',
-            text2: 'Welcome to the Dashboard',
-            visibilityTime: 1000,
-          });
-          navigation.reset({
-            index: 0,
-            routes: [{ name: 'MainDrawer' }],
+            type: 'error',
+            text1: 'Login failed',
+            text2: 'Check E-Mail Id and password'
           });
         }
-      }
-      else {
+      }).catch(() => {
         Toast.show({
           type: 'error',
           text1: 'Login failed',
           text2: 'Check E-Mail Id and password'
         });
-      }
+
+      })
+
     }
     else {
       Toast.show({
