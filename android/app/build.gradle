@@ -78,7 +78,7 @@ android {
 
     namespace "com.mobileapp"
     defaultConfig {
-        applicationId "com.smartapp"
+        applicationId "com.haesok"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         // minSdkVersion 23
