@@ -23,10 +23,6 @@ import JobForm from '../Screens/Management/Home/JobForm';
 import SubJobForm from '../Screens/Management/Sub Jobs/SubJobForm';
 import ApprovalJobForm from '../Screens/Management/Approval/ApprovalJobForm';
 import ApprovalSubJobForm from '../Screens/Management/Approval/ApprovalSubJobForm';
-import ClientDashboard from '../Screens/Clients/ClientDashboard';
-import ClientJobs from '../Screens/Clients/ClientJobs';
-import ClientAudit from '../Screens/Clients/ClientAudit';
-import ClientCompleted from '../Screens/Clients/ClientCompleted';
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -96,12 +92,6 @@ const DrawerScreens = () => {
       <Drawer.Screen name="SubTaskStack" component={SubTaskStack} options={({ route }) => getHeaderNames(route)} />
       <Drawer.Screen name="ClientStack" component={ClientStack} options={({ route }) => getHeaderNames(route)} />
       <Drawer.Screen name="Supports" component={Supports} options={{ title: 'Support' }} />
-
-      <Drawer.Screen name="ClientDashboard" component={ClientDashboard} options={{ title: 'Dashboard' }} />
-      <Drawer.Screen name="ClientJobs" component={ClientJobs} options={{ title: 'Jobs' }} />
-      <Drawer.Screen name="ClientAudit" component={ClientAudit} options={{ title: 'Audit' }} />
-      <Drawer.Screen name="ClientCompleted" component={ClientCompleted} options={{ title: 'Completed' }} />
-
     </Drawer.Navigator>
   );
 }

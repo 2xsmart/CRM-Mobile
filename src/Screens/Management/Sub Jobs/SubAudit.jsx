@@ -220,7 +220,7 @@ const SubAudit = ({ navigation }) => {
                           screen: 'SubJobForm',
                           params: {
                             id: obj.id,
-                            action: true
+                            action: false
                           }
                         })}
                       >

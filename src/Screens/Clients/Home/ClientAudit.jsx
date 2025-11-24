@@ -1,13 +1,15 @@
-import { Text, View, TextInput, TouchableOpacity, ActivityIndicator, ScrollView, Pressable } from 'react-native'
+import { Text, View, TextInput, ActivityIndicator, ScrollView, Pressable } from 'react-native'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useFocusEffect } from '@react-navigation/native';
-import jobsstyles from '../Styles/Jobs'
-import { iconsize } from '../../Constants/dimensions';
+import jobsstyles from '../../Styles/Jobs'
+import { iconsize } from '../../../Constants/dimensions';
 import FontAwesome from 'react-native-vector-icons/FontAwesome'
 import Icon from 'react-native-vector-icons/Ionicons';
-import api from '../../Plugins/axios';
+import api from '../../../Plugins/axios';
+import JobStyles from '../../Styles/Jobs';
+import Loader from '../../Loader';
 
-const ClientAudit = () => {
+const ClientAudit = ({ navigation }) => {
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [myjobs, setmyjobs] = useState([]);
@@ -28,7 +30,12 @@ const ClientAudit = () => {
         // console.log(cname);
         return obj
       });
-      setmyjobs(jobsdata);
+      if (jobsdata.length) {
+        setmyjobs(jobsdata);
+      } else {
+        setLoading(false)
+        setmyjobs(jobsdata);
+      }
       // console.log(res.data);
     }).catch((err) => {
       console.log('err', err);
@@ -78,15 +85,21 @@ const ClientAudit = () => {
         )
       );
     }
-    setLoading(false)
   }, [search, myjobs]);
   useEffect(() => {
     if (clients.length && Status.length && Owner.length) {
       getAudit();
     }
   }, [Owner, Status, clients]);
+  useEffect(() => {
+    if (filteredJobs.length) {
+      setLoading(false);
+    }
+  }, [filteredJobs]);
   if (loading) {
-    return <ActivityIndicator size="large" color="blue" />
+    return <View style={JobStyles.loadingbox}>
+      <Loader />
+    </View>
   }
   return (
     <View style={jobsstyles.container}>
@@ -114,7 +127,9 @@ const ClientAudit = () => {
                     <View style={jobsstyles.TableHead}>
                       <Text style={jobsstyles.cw}>{obj.UID}</Text>
                       <Pressable
-                        style={jobsstyles.openjobicon}>
+                        style={jobsstyles.openjobicon} onPress={() => navigation.navigate('ClientStack', {
+                          screen: 'ClientJobForm', params: { id: obj.id }
+                        })}>
                         <FontAwesome name='angle-right' color='#fff' size={iconsize.sm} />
                       </Pressable>
                     </View>

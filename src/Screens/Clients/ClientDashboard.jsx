@@ -37,17 +37,18 @@ const ClientDashboard = () => {
   const getFullName = () => {
     AsyncStorage.getItem('client').then(cid => {
       setclientid(cid);
+      getclients(cid);
     }).catch((err) => {
       console.log(err);
     })
     return true
   };
-  const getclients = async () => {
+  const getclients = async (id) => {
     await api.get('/clients').then(async (res) => {
       if (clientid) {
-        const clientname = res.data.find(obj => obj.id === Number(clientid))?.name;
+        const clientname = res.data.find(obj => obj.id === Number(id))?.name;
         setname(clientname)
-        // console.log(clientdata);
+        console.log(clientname);
       }
       setclients(res.data);
     }).catch((err) => {
@@ -89,8 +90,7 @@ const ClientDashboard = () => {
     useCallback(() => {
       getStatus();
       const fetchData = async () => {
-        await getFullName();
-        getclients();
+        getFullName();
         getJobs();
         getAudit();
         getCompleted();
@@ -128,7 +128,7 @@ const ClientDashboard = () => {
         <View style={DashStyles.profileiconbox}><FontAwesome6 name={'circle-user'} size={iconsize.xl} color='#FF5C01' /></View>
         <View style={DashStyles.profilename}>
           <Text style={JobStyles.cw}>Welcome</Text>
-          <Text style={JobStyles.cw}>{Name}!</Text>
+          <Text style={JobStyles.cw}>{Name} !</Text>
         </View>
       </View>
       <View style={DashStyles.content}>

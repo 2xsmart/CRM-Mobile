@@ -153,6 +153,7 @@ const JobStyles = StyleSheet.create({
   TableValues: {
     height: 120,
     width: '100%',
+    justifyContent: 'space-around'
     // backgroundColor: 'green'
   },
   valuebox: {

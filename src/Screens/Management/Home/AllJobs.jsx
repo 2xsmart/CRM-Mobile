@@ -182,15 +182,9 @@ const AllJobs = ({ navigation }) => {
                   <View key={i} style={JobStyles.Tablebox}>
                     <View style={JobStyles.TableHead}>
                       <Text style={JobStyles.cw}>{obj.UID}</Text>
-                      <Pressable
-                        style={JobStyles.openjobicon}
-                        onPress={() => navigation.navigate('HomeStack', {
-                          screen: 'JobForm',
-                          params: {
-                            id: obj.id,
-                            action: true
-                          }
-                        })}>
+                      <Pressable style={JobStyles.openjobicon} onPress={() => navigation.navigate('HomeStack', {
+                        screen: 'JobForm', params: { id: obj.id, action: false }
+                      })}>
                         <FontAwesome name='angle-right' color='#fff' size={iconsize.sm} />
                       </Pressable>
                     </View>

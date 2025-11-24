@@ -1,25 +1,26 @@
-import { Text, View, TextInput, TouchableOpacity, ActivityIndicator, ScrollView, Pressable } from 'react-native'
+import { Text, View, TextInput, ActivityIndicator, ScrollView, Pressable } from 'react-native'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useFocusEffect } from '@react-navigation/native';
-import jobsstyles from '../Styles/Jobs'
-import { iconsize } from '../../Constants/dimensions';
+import jobsstyles from '../../Styles/Jobs'
+import { iconsize } from '../../../Constants/dimensions';
 import FontAwesome from 'react-native-vector-icons/FontAwesome'
 import Icon from 'react-native-vector-icons/Ionicons';
-import api from '../../Plugins/axios';
+import api from '../../../Plugins/axios';
+import JobStyles from '../../Styles/Jobs';
+import Loader from '../../Loader';
 
 const ClientJobs = ({ navigation }) => {
 
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [myjobs, setmyjobs] = useState([]);
-  const [filteredJobs, setFilteredJobs] = useState(myjobs);
+  const [filteredJobs, setFilteredJobs] = useState([]);
   const [clients, setclients] = useState([]);
   const [Owner, setOwner] = useState([]);
   const [Status, setStatus] = useState([]);
 
   const getJobs = async () => {
     await api.post('/jobs/client').then(async (res) => {
-      // 
       const jobsdata = res.data.map(obj => {
         const cid = obj.Client;
         const sid = obj.Status;
@@ -30,7 +31,12 @@ const ClientJobs = ({ navigation }) => {
         // console.log(cname);
         return obj
       });
-      setmyjobs(jobsdata);
+      if (jobsdata.length) {
+        setmyjobs(jobsdata);
+      } else {
+        setLoading(false)
+        setmyjobs(jobsdata);
+      }
       // console.log(res.data);
     }).catch((err) => {
       console.log('err', err);
@@ -59,12 +65,9 @@ const ClientJobs = ({ navigation }) => {
   };
   useFocusEffect(
     useCallback(() => {
-      const getdata = async () => {
-        getclients()
-        getOwner()
-        getStatus()
-      };
-      getdata();
+      getOwner()
+      getStatus()
+      getclients()
     }, [])
   );
   useEffect(() => {
@@ -80,15 +83,21 @@ const ClientJobs = ({ navigation }) => {
         )
       );
     }
-    setLoading(false)
   }, [search, myjobs]);
   useEffect(() => {
     if (clients.length && Status.length && Owner.length) {
       getJobs();
     }
-  }, [Owner, Status, clients]);
+  }, [clients]);
+  useEffect(() => {
+    if (filteredJobs.length) {
+      setLoading(false);
+    }
+  }, [filteredJobs]);
   if (loading) {
-    return <ActivityIndicator size="large" color="blue" />
+    return <View style={JobStyles.loadingbox}>
+      <Loader />
+    </View>
   }
   return (
     <View style={jobsstyles.container}>
@@ -116,7 +125,9 @@ const ClientJobs = ({ navigation }) => {
                     <View style={jobsstyles.TableHead}>
                       <Text style={jobsstyles.cw}>{obj.UID}</Text>
                       <Pressable
-                        style={jobsstyles.openjobicon}>
+                        style={jobsstyles.openjobicon} onPress={() => navigation.navigate('ClientStack', {
+                          screen: 'ClientJobForm', params: { id: obj.id, action: false }
+                        })}>
                         <FontAwesome name='angle-right' color='#fff' size={iconsize.sm} />
                       </Pressable>
                     </View>

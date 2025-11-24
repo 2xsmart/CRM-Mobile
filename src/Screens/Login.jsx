@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, ImageBackground, Image, TouchableHighlight, TouchableOpacity, BackHandler } from 'react-native';
+import { StyleSheet, Text, View, ImageBackground, Image, Modal, TouchableHighlight, TouchableWithoutFeedback, TouchableOpacity, BackHandler } from 'react-native';
 import { TextInput } from 'react-native-paper';
 import React, { useEffect, useState, useCallback } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -10,25 +10,26 @@ import { useFocusEffect } from '@react-navigation/native';
 import { iconsize } from '../Constants/dimensions';
 import api from '../Plugins/axios';
 import ReactNativeBiometrics from 'react-native-biometrics';
+import Fontisto from 'react-native-vector-icons/Fontisto';
 
 const Login = ({ navigation }) => {
   const [showPassword, setshowPassword] = useState(true)
   const [Data, setData] = useState({});
-  const [Mobileauthentication, setMobileauthentication] = useState(true);
-
+  const [UnlockBox, setUnlockBox] = useState(false);
   const rnBiometrics = new ReactNativeBiometrics();
 
   const CheckBiometrics = async () => {
-    rnBiometrics.isSensorAvailable()
+    return rnBiometrics.isSensorAvailable()
       .then(({ available, biometryType }) => {
         if (available && biometryType === ReactNativeBiometrics.FaceID) {
           console.log('Face ID supported');
-          authenticate()
+          return true
         } else if (available) {
           console.log('Biometric supported (fingerprint or iris)');
-          authenticate()
+          return true
         } else {
           console.log('No biometric hardware available');
+          return false
         }
       });
   };
@@ -41,17 +42,24 @@ const Login = ({ navigation }) => {
       });
       if (!success) {
         console.log('Prompt closed — retrying...');
-        navigation.navigate('Authenticate');
+        setUnlockBox(true)
       } else {
         console.log('✅ Authenticated successfully!');
-        AsyncStorage.setItem('Mobileauthentication', 'true')
-        // setMobileauthentication(true)
+        setUnlockBox(false)
+        const localStorage = await fetchData();
+        navigate(localStorage.userlevel);
       }
     } catch (error) {
       console.log('Biometric prompt error:', error);
+      setUnlockBox(true)
       BackHandler.exitApp();
       // You can retry or exit app here
     }
+  };
+  const Mobileauthentication = async () => {
+    const result = await CheckBiometrics();
+    // console.log(result);  // true or false
+    return result
   };
   const handleInput = (key, value) => {
     setData(prev => ({
@@ -120,7 +128,7 @@ const Login = ({ navigation }) => {
     const response = await api.get('/logo/standard/0')
     const data = response.data.filter(obj => obj.Value === 1).map(obj => obj.Name)
     AsyncStorage.setItem('Menus', JSON.stringify(data))
-  }
+  };
   const clearStorage = async () => {
     try {
       await AsyncStorage.clear();
@@ -140,28 +148,33 @@ const Login = ({ navigation }) => {
       return []
     }
   };
-
+  const exitApp = () => {
+    BackHandler.exitApp();
+  };
+  const navigate = (userlevel) => {
+    if (userlevel === 'client') {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'ClientDrawer' }]
+      });
+    } else {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'MainDrawer' }],
+      });
+    }
+  };
   // Runs every time the screen comes into focus
   useFocusEffect(
     useCallback(() => {
       const getData = async () => {
         const localStorage = await fetchData();
-        if (localStorage.authToken) {
-          if (localStorage.userlevel === 'client') {
-            // navigation.navigate('ClientDashboard');
-          } else {
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'MainDrawer' }],
-            });
-          }
+        if (localStorage.authToken && Mobileauthentication()) {
+          authenticate()
+        } else if (localStorage.authToken) {
+          navigate(localStorage.userlevel)
         } else {
           clearStorage();
-        }
-        if (localStorage.Mobileauthentication === 'true') {
-          console.log('Verified');
-        } else {
-          CheckBiometrics();
         }
       };
       getData();
@@ -197,6 +210,31 @@ const Login = ({ navigation }) => {
           </View>
         </View>
       </ImageBackground>
+      <Modal visible={UnlockBox} transparent animationType="fade">
+        <TouchableWithoutFeedback>
+          <View style={styles.ApprovalmodalOverlay}>
+            <View style={styles.ApprovalmodalContent}>
+              <View style={styles.iconbox}>
+                <Fontisto name="locked" size={iconsize.sm} color="blue" />
+              </View>
+              <View style={styles.header}>
+                <Text style={styles.headText}>Your App is Locked</Text>
+              </View>
+              <View style={styles.informationBox}>
+                <Text style={styles.informationText}>For Your Security, You can Only use your App When it's Unlocked</Text>
+              </View>
+              <View style={styles.actionbox}>
+                <TouchableHighlight onPress={exitApp} underlayColor="gray" style={styles.unlockbtn}>
+                  <Text>Exit</Text>
+                </TouchableHighlight>
+                <TouchableHighlight onPress={authenticate} style={[styles.unlockbtn]}>
+                  <Text style={[styles.b]}>Unlock</Text>
+                </TouchableHighlight>
+              </View>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
     </SafeAreaView>
   )
 }
@@ -275,5 +313,65 @@ const styles = StyleSheet.create({
   forgotText: {
     color: '#2B7FFF',
     marginTop: 10,
+  },
+  ApprovalmodalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  ApprovalmodalContent: {
+    width: '90%',
+    height: 170,
+    backgroundColor: "white",
+    borderRadius: 5,
+    alignItems: 'center'
+  },
+  iconbox: {
+    height: '20%',
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    // backgroundColor: 'green'
+  },
+  header: {
+    height: '20%',
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    // backgroundColor: 'green'
+  },
+  headText: {
+    fontSize: 18,
+    fontWeight: 'bold'
+  },
+  informationBox: {
+    height: '30%',
+    width: '80%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    // borderWidth: 1
+    // backgroundColor: 'green'
+  },
+  informationText: {
+    fontSize: 15,
+    textAlign: 'center',
+    lineHeight: 20
+  },
+  actionbox: {
+    height: '30%',
+    width: '90%',
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    gap: 10,
+    // backgroundColor: 'green'
+  },
+  unlockbtn: {
+    padding: 10,
+    // backgroundColor: 'green'
+  },
+  b: {
+    color: 'blue'
   }
 })

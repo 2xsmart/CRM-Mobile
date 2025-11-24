@@ -120,7 +120,6 @@ const MyTask = ({ navigation }) => {
   }, [filteredJobs]);
   if (loading) return <View style={JobStyles.loadingbox}>
     <Loader />
-
   </View>
   return (
     <View style={JobStyles.container}>
@@ -153,7 +152,7 @@ const MyTask = ({ navigation }) => {
                           screen: 'JobForm',
                           params: {
                             id: obj.id,
-                            action: true
+                            action: false
                           }
                         })}>
                         <FontAwesome name='angle-right' color='#fff' size={iconsize.sm} />
@@ -176,7 +175,6 @@ const MyTask = ({ navigation }) => {
         </ScrollView>
       </View>
     </View>
-
   )
 }
 

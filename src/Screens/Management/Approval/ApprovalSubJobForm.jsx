@@ -56,7 +56,7 @@ const ApprovalSubJobForm = ({ route, navigation }) => {
   const getFields = async (fids) => {
     await api.get('/fields/subjobconfig').then(res => {
       const data = fids.map(id => res.data.find(obj => obj.id === id));
-      setTabFields(data);
+      // setTabFields(data);
       // setFields(data);
       // console.log(data);
       getApprovalData(data)
@@ -81,8 +81,9 @@ const ApprovalSubJobForm = ({ route, navigation }) => {
         }
       ];
       setTabs(tabsData)
-      handleTabs(1)
-      // console.log(tabsData);
+      setselectedTab(1)
+      setTabFields(data)
+      // console.log(data);
     }).catch(err => {
       console.log(err);
     });
@@ -274,20 +275,12 @@ const ApprovalSubJobForm = ({ route, navigation }) => {
               return <View style={JobFormStyle.formfieldbox} key={field.id}>
                 {
                   ApprovalFields.includes(field.id) && form[field.id] ? <>
-                    <TextInput label={field.name} mode="outlined" style={[JobFormStyle.input, JobFormStyle.w90]} value={String(form[field.id])} />
+                    <TextInput label={field.name} mode="outlined" style={[JobFormStyle.input, JobFormStyle.w90]} value={String(form[field.id])} editable={false} />
                     <View style={JobFormStyle.InputIconBox}>
-                      <Icon
-                        name="lock"
-                        size={iconsize.sm}
-                        color="#0054D1"
-                        onPress={() => {
-                          setShowApproval(true);
-                          setApprovalField(field.id);
-                        }}
-                      />
+                      <Icon name="lock" size={iconsize.sm} color="#0054D1" onPress={() => { setShowApproval(true); setApprovalField(field.id) }} />
                     </View>
                   </> :
-                    <TextInput label={field.name} mode="outlined" style={[JobFormStyle.input, JobFormStyle.w100]} value={String(form[field.id] || '')} />
+                    <TextInput label={field.name} mode="outlined" style={[JobFormStyle.input, JobFormStyle.w100]} value={String(form[field.id] || '')} editable={false} />
                 }
               </View>
             })

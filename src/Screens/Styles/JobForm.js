@@ -119,11 +119,13 @@ const JobFormStyle = StyleSheet.create({
     // backgroundColor: '#8EC5FF',
   },
   fieldbox: {
-    height: 55,
+    minHeight: 55,
+    maxHeight: 70,
     width: '90%',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 3
+    gap: 3,
+    // backgroundColor: 'green'
   },
   formfieldbox: {
     height: 40,
@@ -139,6 +141,14 @@ const JobFormStyle = StyleSheet.create({
     borderColor: 'gray',
     borderRadius: 5,
     backgroundColor: '#fff',
+    // backgroundColor: '#BEDBFF',
+  },
+  textArea: {
+    // height: 45,
+    width: '100%',
+    borderColor: 'gray',
+    borderRadius: 5,
+    // backgroundColor: '#fff',
     // backgroundColor: '#BEDBFF',
   },
   commentbox: {
@@ -272,7 +282,8 @@ const JobFormStyle = StyleSheet.create({
   },
   modalContent: {
     width: '100%',
-    height: '50%',
+    minHeight: '20%',
+    maxHeight: '50%',
     backgroundColor: "white",
     flexWrap: 'wrap',
     flexDirection: 'row',

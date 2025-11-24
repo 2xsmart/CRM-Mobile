@@ -107,7 +107,7 @@ const SubJobForm = ({ route, navigation }) => {
     }
   };
   const renderField = (field) => {
-    if (field.type === 'text' || field.type === 'textArea') {
+    if (field.type === 'text') {
       return (
         <>
           <View style={JobFormStyle.labelbox}>
@@ -120,6 +120,27 @@ const SubJobForm = ({ route, navigation }) => {
             placeholder={`Enter ${field.name}`}
             value={SubJobData[field.id] ? String(SubJobData[field.id]) : ''}
             placeholderTextColor={'#999'}
+            editable={Action}
+          // onChangeText={(text) => handleJobData(field.id, text)}
+          />
+        </>
+      );
+    }
+    else if (field.type === 'textArea') {
+      return (
+        <>
+          <View style={JobFormStyle.labelbox}>
+            <Text>{field.name}</Text>
+          </View>
+          <TextInput
+            mode="outlined"
+            style={JobFormStyle.textArea}
+            outlineStyle={{ borderColor: '#71717B', borderWidth: 1 }}
+            placeholder={`Enter ${field.name}`}
+            value={SubJobData[field.id] ? String(SubJobData[field.id]) : ''}
+            placeholderTextColor={'#999'}
+            editable={Action}
+            multiline
           // onChangeText={(text) => handleJobData(field.id, text)}
           />
         </>
@@ -139,6 +160,7 @@ const SubJobForm = ({ route, navigation }) => {
             placeholder={`Enter ${field.name}`}
             value={SubJobData[field.id] ? String(SubJobData[field.id]) : ''}
             placeholderTextColor={'#999'}
+            editable={Action}
           // onChangeText={(text) => handleJobData(field.id, text)}
           />
         </>
@@ -164,6 +186,7 @@ const SubJobForm = ({ route, navigation }) => {
           placeholder={`Select ${field.name}`}
           searchPlaceholder="Search..."
           value={String(SubJobData[field.id]) || ''}
+          disable={Action ? false : true}
         // onChange={item => handleJobData(field.id, item.value)}
         // renderItem={(item) => selectedoption(item.name, form[field.id])}
         />
@@ -192,6 +215,7 @@ const SubJobForm = ({ route, navigation }) => {
             valueField="value"
             multiple
             maxHeight={300}
+            disable={Action ? false : true}
           // onChange={items => handleJobData(field.id, items)}
           // renderItem={(item) => selectedoptions(item, 'value', form[field.id])}
           />
@@ -211,6 +235,7 @@ const SubJobForm = ({ route, navigation }) => {
                   <RadioButton
                     value={String(item.value) || ''}
                     status={SubJobData[field.id] === item.value ? "checked" : "unchecked"}
+                    disabled={Action ? false : true}
                   // onPress={() => handleJobData(field.id, item.value)}
                   />
                 </View>
@@ -232,7 +257,7 @@ const SubJobForm = ({ route, navigation }) => {
             <FontAwesome5 name="calendar-alt" size={iconsize.sm} color="#FFF" style={{ backgroundColor: '#0343CE', width: '12%', paddingLeft: 10, paddingVertical: 6 }} onPress={() => setShow(field.id)} />
             <Text style={{ width: '100%', paddingVertical: 10 }}>{SubJobData[field.id] ? String(SubJobData[field.id]) : ''}</Text>
           </TouchableOpacity>
-          {show === field.id && (
+          {show === field.id && Action && (
             <DateTimePicker
               value={parseDate(SubJobData[field.id]) || ''}
               mode="date"

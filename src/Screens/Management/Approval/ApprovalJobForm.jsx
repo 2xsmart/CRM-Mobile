@@ -49,34 +49,37 @@ const ApprovalJobForm = ({ route, navigation }) => {
   };
   const getJobData = async () => {
     try {
-      const res = await api.get('/jobData/' + JobId);
-      const data = res.data;
-      const data1 = {};
-      data.forEach(obj => {
-        if (obj.type === 'singleSelect') {
-          const result = obj.value && typeof obj.value === 'object' ? obj.value.name : obj.value
-          data1[obj.fieldId] = result
-        } else if (obj.type === 'multiSelect') {
-          let result = ''
-          if (Array.isArray(obj.value)) {
-            if (typeof obj.value[0] === 'object') {
-              result = obj.value.map(item => `"${item.name || item.value}"`).join(',')
-            } else {
-              result = obj.value.map(item => `"${item}"`).join(',')
+      await api.get('/jobData/' + JobId).then(res => {
+        const data = res.data;
+        const data1 = {};
+        data.forEach(obj => {
+          if (obj.type === 'singleSelect') {
+            const result = obj.value && typeof obj.value === 'object' ? obj.value.name : obj.value
+            data1[obj.fieldId] = result
+          } else if (obj.type === 'multiSelect') {
+            let result = ''
+            if (Array.isArray(obj.value)) {
+              if (typeof obj.value[0] === 'object') {
+                result = obj.value.map(item => `"${item.name || item.value}"`).join(',')
+              } else {
+                result = obj.value.map(item => `"${item}"`).join(',')
+              }
+            } else if (typeof obj.value === 'string') {
+              result = obj.value
+                .split(',')
+                .map(item => `"${item.trim()}"`)
+                .join(',')
             }
-          } else if (typeof obj.value === 'string') {
-            result = obj.value
-              .split(',')
-              .map(item => `"${item.trim()}"`)
-              .join(',')
+            data1[obj.fieldId] = [result][0].replace(/"/g, '').split(',').join(',')
+          } else {
+            data1[obj.fieldId] = obj.value
           }
-          data1[obj.fieldId] = [result][0].replace(/"/g, '').split(',').join(',')
-        } else {
-          data1[obj.fieldId] = obj.value
-        }
-      });
-      // console.log(data1);
-      setForm(data1);
+        });
+        setForm(data1);
+        // console.log(data1)
+      }).catch(err => {
+        console.log(err);
+      })
     } catch (error) {
       console.log('err', error);
     }
@@ -156,19 +159,11 @@ const ApprovalJobForm = ({ route, navigation }) => {
             return <ReadOnlyField label={field.name} value={String(form[field.id] || '')} Fid={field.id} />;
           case 'number':
             return (
-              <ReadOnlyField
-                label={field.name}
-                value={form[field.id] ? String(form[field.id]) : ""}
-                Fid={field.id}
-              />
+              <ReadOnlyField label={field.name} value={form[field.id] ? String(form[field.id]) : ""} Fid={field.id} />
             );
           case 'file':
             return (
-              <ReadOnlyField
-                label={field.name}
-                value={String(form[field.id] || '')}
-                Fid={field.id}
-              />
+              <ReadOnlyField label={field.name} value={String(form[field.id] || '')} Fid={field.id} />
             );
           default:
             return null;
@@ -181,7 +176,7 @@ const ApprovalJobForm = ({ route, navigation }) => {
       {
         ApprovalFields.includes(Fid) && form[Fid] ? (
           <>
-            <TextInput label={label} mode="outlined" style={[JobFormStyle.input, JobFormStyle.w90]} value={value} />
+            <TextInput label={label} mode="outlined" style={[JobFormStyle.input, JobFormStyle.w90]} value={value} editable={false} />
             <View style={JobFormStyle.InputIconBox}>
               <Icon
                 name="lock"
@@ -195,7 +190,7 @@ const ApprovalJobForm = ({ route, navigation }) => {
             </View>
           </>
         ) : (
-          <TextInput label={label} mode="outlined" style={[JobFormStyle.input, JobFormStyle.w90]} value={value} />
+          <TextInput label={label} mode="outlined" style={[JobFormStyle.input, JobFormStyle.w100]} value={value} editable={false} />
         )
       }
     </>

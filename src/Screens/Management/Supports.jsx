@@ -105,7 +105,7 @@ const Supports = () => {
     const findReport = Reports.find(obj => obj.id === id)
     setReport(findReport);
     setShowForm(true);
-    console.log(findReport);
+    // console.log(findReport);
   };
   const handleChange = (key, value) => {
     setReport(prev => ({ ...prev, [key]: value }))
@@ -335,12 +335,13 @@ const Supports = () => {
                   </View>
                   <TextInput
                     mode="outlined"
-                    style={JobFormStyle.input}
+                    style={JobFormStyle.textArea}
                     outlineStyle={JobFormStyle.TextInputoutline}
                     placeholder={'Enter Description'}
                     value={Report.Description || ''}
                     placeholderTextColor={'#999'}
                     onChangeText={(text) => handleChange('Description', text)}
+                    multiline
                   />
                 </View>
               </View>

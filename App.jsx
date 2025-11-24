@@ -8,7 +8,6 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Toast, { BaseToast } from 'react-native-toast-message';
 // Global 
 import Login from './src/Screens/Login';
-import Authenticate from './src/Screens/Authenticate';
 import ClientDrawer from './src/Navigation/ClientDrawer';
 
 
@@ -60,7 +59,6 @@ const App = () => {
           <NavigationContainer>
             <Stack.Navigator>
               <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
-              <Stack.Screen name="Authenticate" component={Authenticate} options={{ headerShown: false }} />
               <Stack.Screen name="MainDrawer" component={DrawerScreens} options={{ headerShown: false }} />
               <Stack.Screen name="ClientDrawer" component={ClientDrawer} options={{ headerShown: false }} />
             </Stack.Navigator>
