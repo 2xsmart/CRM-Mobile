@@ -78,7 +78,7 @@ android {
 
     namespace "com.mobileapp"
     defaultConfig {
-        applicationId "com.haesok"
+        applicationId "com.hsipl"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         // minSdkVersion 23
